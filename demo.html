@@ -80,7 +80,7 @@ const {hydrate, render, rerender} = await customElements.whenDefined("sig-nal");
 hydrate(["div#counter1", "div.counter2"], {
   title: {
     "!title": rerender,
-    ".textContent": render(() => document.title)
+    ".textContent": render(document.title)
   },
   counter: { ".textContent": rerender },
   inc: { "@click": ({ signal }) => signal.value++ },

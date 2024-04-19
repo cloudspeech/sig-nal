@@ -120,7 +120,7 @@ class SigNal extends HTMLElement {
   static render =
     (value) =>
     ({ domNode, name }) =>
-      (domNode[name] = value());
+      (domNode[name] = typeof value === "function" ? value() : value);
 
   connectedCallback() {
     const root = this[this.#GA("for") || "parentNode"];
