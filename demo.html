@@ -75,12 +75,12 @@
     </footer>
 
     <script type="module">
-const {hydrate, rerender} = await customElements.whenDefined("sig-nal");
+const {hydrate, render, rerender} = await customElements.whenDefined("sig-nal");
 
 hydrate(["div#counter1", "div.counter2"], {
   title: {
     "!title": rerender,
-    ".textContent": ({ domNode, name }) => (domNode[name] = document.title),
+    ".textContent": render(() => document.title)
   },
   counter: { ".textContent": rerender },
   inc: { "@click": ({ signal }) => signal.value++ },

@@ -117,6 +117,11 @@ class SigNal extends HTMLElement {
   static rerender = ({ signal, name, domNode }, initial = true) =>
     signal.onChange((value) => (domNode[name] = value), initial);
 
+  static render =
+    (value) =>
+    ({ domNode, name }) =>
+      (domNode[name] = value());
+
   connectedCallback() {
     const root = this[this.#GA("for") || "parentNode"];
     const scope = this.getRootNode();
