@@ -1,0 +1,18 @@
+body, div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-family: sans-serif;
+}
+
+body {
+    height: 100vh;
+    background-repeat: no-repeat;
+    background-image: radial-gradient( circle 897px at 9% 80.3%,  rgba(55,60,245,1) 0%, rgba(234,161,15,0.90) 100.2% );
+    color: #fff;
+}
+
+details {
+    cursor: pointer;
+    padding: 1rem 3rem;
+}

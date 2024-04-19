@@ -7,17 +7,15 @@
     <meta name="description" content=""/>
     <link rel="icon" href="/favicon.png"/>
     <title>Demo | sig-nal</title>
+    <link href="/style.css" rel="stylesheet" type="text/css">
     <script type="module" src="/src/index.js"></script>
   </head>
   <body>
-    <details><summary>Info</summary>
-      <p>Witness how the 2nd counter instance below is independent of the 1st, thanks to shadowRoot scoping!</p>
-    </details>
-
     <div id="counter1">
       <template shadowrootmode="open">
-	<h1 !title="counter" .textContent="title">
-	  <sig-nal ref="title"></sig-nal>
+	<style>button{box-shadow:1px 2px 3px rgba(0,0,0,.3);padding:.5rem;cursor:pointer}</style>
+	<h1>
+	  <a href="https://github.com/cloudspeech/sig-nal" target="_blank" !title="counter" .textContent="title"><sig-nal ref="title"></sig-nal></a>
 	</h1>
 	<div class="container">
 	  <button @click="counter">
@@ -35,8 +33,9 @@
 
     <div class="counter2">
       <template shadowrootmode="open">
+	<style>button{box-shadow:1px 2px 3px rgba(0,0,0,.3);padding:.5rem;cursor:pointer}</style>
 	<h1 !title="counter">
-	  <sig-nal ref="title">Counter</sig-nal>
+	  <sig-nal ref="title">Counters</sig-nal>
 	</h1>
 	<div class="container">
 	  <button @click="counter">
@@ -54,28 +53,26 @@
 
     <div class="clock">
       <template shadowrootmode="open">
+	<style>.weekday:after{content:','}.day:after{content:'.'}.hour:after,.minute:after{content:':';margin-right: -2px}</style>
 	<h1>Date and Time</h1>
-	<table>
-	  <thead></thead>
-	  <tbody>
-	    <tr>
-	      <td .textContent="weekday"><sig-nal new="weekday" id="weekday">Freitag</sig-nal></td>
-	      <td>,</td>
-	      <td .textContent="day"><sig-nal new="day" id="day">19</sig-nal></td>
-	      <td>.</td>
-	      <td .textContent="month"><sig-nal new="month" id="month">April</sig-nal></td>
-	      <td .textContent="year"><sig-nal new="year" id="year">2024</sig-nal></td>
-	      <td .textContent="hour"><sig-nal new="hour" id="hour">11</sig-nal></td>
-	      <td>:</td>
-	      <td .textContent="minute"><sig-nal new="minute" id="minute">53</sig-nal></td>
-	      <td>:</td>
-	      <td .textContent="second"><sig-nal new="second" id="second">24</sig-nal></td>
-	      <td .textContent="timeZoneName"><sig-nal new="timeZoneName" id="timeZoneName">MESZ</sig-nal></td>
-	    </tr>
-	  </tbody>
-	</table>
+	<table><tr>
+	  <td class="weekday" .textContent="weekday"><sig-nal new="weekday" id="weekday">Freitag</sig-nal></td>
+	  <td class="day" .textContent="day"><sig-nal new="day" id="day">19</sig-nal></td>
+	  <td class="month" .textContent="month"><sig-nal new="month" id="month">April</sig-nal></td>
+	  <td class="year" .textContent="year"><sig-nal new="year" id="year">2024</sig-nal></td>
+	  <td class="hour" .textContent="hour"><sig-nal new="hour" id="hour">11</sig-nal></td>
+	  <td class="minute" .textContent="minute"><sig-nal new="minute" id="minute">53</sig-nal></td>
+	  <td .textContent="second"><sig-nal new="second" id="second">24</sig-nal></td>
+	  <td .textContent="timeZoneName"><sig-nal new="timeZoneName" id="timeZoneName">MESZ</sig-nal></td>
+	</tr></table>
       </template>
     </div>
+
+    <footer>
+      <details><summary>Info</summary>
+	<p>Demo (c) 2024 by Markus Walther. Witness how both counter instances are independent of each other, thanks to shadowRoot scoping! In Chrome DevTools, enable Rendering &rarr; Paint flashing to see fine-grained DOM updates!</p>
+      </details>
+    </footer>
 
     <script type="module">
 const {hydrate, rerender} = await customElements.whenDefined("sig-nal");
