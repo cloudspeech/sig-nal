@@ -81,7 +81,7 @@ class SigNal extends HTMLElement {
 
   static Signal = Signal;
 
-  static hydrate = (selectors, descriptors) => {
+  static hydrate = (selectors, descriptors, exportedSignals) => {
     for (let selector of selectors) {
       const scope = document.querySelector(selector).shadowRoot;
       const signals = signalMap.get(scope) || NONE;
@@ -92,7 +92,9 @@ class SigNal extends HTMLElement {
         for (let property in properties) {
           const handler = properties[property];
           const { name, init } = mapping[property.toLowerCase()] || NONE;
-          const { signal, type } = (name && signals[name]) || NONE;
+          const { signal, type, id } = (name && signals[name]) || NONE;
+          if (exportedSignals instanceof Object && id && signal)
+            exportedSignals[id] = signal;
           const attribute = property.slice(1);
           const callback = (e) =>
             handler({
@@ -121,14 +123,15 @@ class SigNal extends HTMLElement {
     const isSignal = this.#GA("new");
     const name = isSignal || this.#GA("ref");
     const type = this.#GA("type");
-    const text = this.textContent;
+    const { id, textContent } = this;
 
     scopeMap.use(scope)[name] = root;
 
     if (isSignal) {
       signalMap.use(scope)[name] = {
-        signal: new Signal(convert(text, type)),
+        signal: new Signal(convert(textContent, type)),
         type,
+        id,
       };
     }
 
@@ -136,8 +139,8 @@ class SigNal extends HTMLElement {
       this.#add(attribute, root);
     }
 
-    if (!this.#GA("class")) {
-      this.replaceWith(text);
+    if (!this.className) {
+      this.replaceWith(textContent);
     }
   }
 }

@@ -6,10 +6,14 @@
     <meta name="robots" content="noindex, nofollow"/>
     <meta name="description" content=""/>
     <link rel="icon" href="/favicon.png"/>
-    <title>Counter Demo | sig-nal</title>
+    <title>Demo | sig-nal</title>
     <script type="module" src="/src/index.js"></script>
   </head>
   <body>
+    <details><summary>Info</summary>
+      <p>Witness how the 2nd counter instance below is independent of the 1st, thanks to shadowRoot scoping!</p>
+    </details>
+
     <div id="counter1">
       <template shadowrootmode="open">
 	<h1 !title="counter" .textContent="title">
@@ -29,12 +33,10 @@
       </template>
     </div>
 
-    <p>Witness how the 2nd counter instance below is independent of the 1st, thanks to shadowRoot scoping!</p>
-
     <div class="counter2">
       <template shadowrootmode="open">
 	<h1 !title="counter">
-	  <sig-nal ref="title">Demo Counter 2 | sig-nal</sig-nal>
+	  <sig-nal ref="title">Counter</sig-nal>
 	</h1>
 	<div class="container">
 	  <button @click="counter">
@@ -50,16 +52,68 @@
       </template>
     </div>
 
+    <div class="clock">
+      <template shadowrootmode="open">
+	<h1>Date and Time</h1>
+	<table>
+	  <thead></thead>
+	  <tbody>
+	    <tr>
+	      <td .textContent="weekday"><sig-nal new="weekday" id="weekday">Freitag</sig-nal></td>
+	      <td>,</td>
+	      <td .textContent="day"><sig-nal new="day" id="day">19</sig-nal></td>
+	      <td>.</td>
+	      <td .textContent="month"><sig-nal new="month" id="month">April</sig-nal></td>
+	      <td .textContent="year"><sig-nal new="year" id="year">2024</sig-nal></td>
+	      <td .textContent="hour"><sig-nal new="hour" id="hour">11</sig-nal></td>
+	      <td>:</td>
+	      <td .textContent="minute"><sig-nal new="minute" id="minute">53</sig-nal></td>
+	      <td>:</td>
+	      <td .textContent="second"><sig-nal new="second" id="second">24</sig-nal></td>
+	      <td .textContent="timeZoneName"><sig-nal new="timeZoneName" id="timeZoneName">MESZ</sig-nal></td>
+	    </tr>
+	  </tbody>
+	</table>
+      </template>
+    </div>
+
     <script type="module">
-      const {hydrate, rerender} = await customElements.whenDefined("sig-nal");
+const {hydrate, rerender} = await customElements.whenDefined("sig-nal");
 
-      hydrate(["div#counter1", "div.counter2"],
-      {  title:   { "!title": rerender, ".textContent": ({domNode,name}) => (domNode[name] = document.title) },
-         counter: { ".textContent": rerender },
-         inc:     { "@click": ({signal}) => signal.value++ },
-         dec:     { "@click": ({signal}) => signal.value-- }
-      });
+hydrate(["div#counter1", "div.counter2"], {
+  title: {
+    "!title": rerender,
+    ".textContent": ({ domNode, name }) => (domNode[name] = document.title),
+  },
+  counter: { ".textContent": rerender },
+  inc: { "@click": ({ signal }) => signal.value++ },
+  dec: { "@click": ({ signal }) => signal.value-- },
+});
+
+const clockSignals = {},
+  last = [];
+
+const dateParts = () =>
+  Intl.DateTimeFormat("de-CH", { dateStyle: "full", timeStyle: "long" })
+    .formatToParts(new Date())
+    .filter(
+      ({ type, value }, i) => type !== "literal" && value !== last[i]?.value,
+    );
+
+const generate = (parts) => {
+  const renderSpec = {};
+  parts.forEach(
+    ({ type, value }) => (renderSpec[type] = { ".textContent": rerender }),
+  );
+  return renderSpec;
+};
+
+hydrate(["div.clock"], generate(dateParts()), clockSignals);
+
+const updateDateParts = () =>
+  dateParts().forEach(({ type, value }) => (clockSignals[type].value = value));
+
+setInterval(updateDateParts, 1000);
     </script>
-
   </body>
 </html>
