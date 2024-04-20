@@ -4,7 +4,7 @@
 
 ## Demo
 
-Here is a [demo](https://cloudspeech.github.io/sig-nal/demo.html).
+Here is a [demo](https://cloudspeech.github.io/sig-nal/demo.html){:target="_blank" rel="noopener"}.
 
 ## Status
 This is alpha-quality software and as such not ready for production.
