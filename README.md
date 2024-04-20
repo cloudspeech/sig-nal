@@ -4,7 +4,9 @@
 
 ## Demo
 
-Here is a [demo](https://cloudspeech.github.io/sig-nal/demo.html).
+<img width="289" alt="Screenshot 2024-04-21 at 00 12 15" src="https://github.com/cloudspeech/sig-nal/assets/850521/fbddeff4-84fb-4ea5-a8c0-42528b33d1d0">
+
+Here is a live [demo](https://cloudspeech.github.io/sig-nal/demo.html).
 
 ## Status
 
