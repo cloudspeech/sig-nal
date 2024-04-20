@@ -29,12 +29,13 @@ This is alpha-quality software and as such not ready for production.
       </template>
     </div>
     <script type="module">
-    const {hydrate, rerender} = await customElements.whenDefined("sig-nal");
+    const {hydrate,
+           rerender} = await customElements.whenDefined("sig-nal");
     hydrate(["div#counter"],{
-      			     counter: { ".textContent": rerender },
-			     inc: { "@click": ({ signal }) => signal.value++ },
-  			     dec: { "@click": ({ signal }) => signal.value-- },
-			     });
+ 	     counter: { ".textContent": rerender },
+	     inc: { "@click": ({ signal }) => signal.value++ },
+	     dec: { "@click": ({ signal }) => signal.value-- },
+	     });
     </script>
 ```
 
