@@ -2,6 +2,10 @@
 
 &lt;sig-nal&gt; is a zero-dependencies Web Component for Server-Side Rendering with Signals (SSS), using [**871**](https://raw.githubusercontent.com/cloudspeech/sig-nal/main/dist/index.min.js) bytes (Brotli-11-compressed).
 
+## Demo
+
+Here is a [demo](https://cloudspeech.github.io/sig-nal/demo.html).
+
 ## Status
 This is alpha-quality software and as such not ready for production.
 
