@@ -19,7 +19,7 @@ const signalMap = new initWeakMap();
 
 // helpers
 const convert = (value, type) =>
-  type === "number" ? parseInt(value, 10) : value;
+  type === "number" ? value | 0 : value;
 
 // reactive signals class
 export class Signal {
