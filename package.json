@@ -5,8 +5,8 @@
   "main": "dist/index.min.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "format": "bun run prettier --write src/index.js",
-    "build": "bun run terser src/index.js --module --compress ecma=2022,passes=2 --mangle > dist/index.min.js && bun run compress.js",
+    "format":"bun run prettier --arrow-parens=avoid --write src/index.js; bun run prettier --arrow-parens=avoid --write src/plugins/class-map.js",
+    "build": "bun run terser src/index.js --module --compress ecma=2022,passes=2 --mangle > dist/index.min.js; bun run terser src/plugins/class-map.js --module --compress ecma=2022,passes=2 --mangle > dist/plugins/class-map.min.js && bun run compress.js",
     "start": "bun --hot run ./server.js"
   },
   "keywords": [

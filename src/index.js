@@ -4,7 +4,7 @@ const INIT = [
   (root, attributeName) => root[attributeName],
   (root, attributeName) => root.hasAttribute(attributeName),
   (root, attributeName) => root.getAttribute(attributeName),
-  (root) => 1,
+  root => 1,
 ];
 
 class initWeakMap extends WeakMap {
@@ -18,8 +18,7 @@ const rootMap = new initWeakMap();
 const signalMap = new initWeakMap();
 
 // helpers
-const convert = (value, type) =>
-  type === "number" ? value | 0 : value;
+const convert = (value, type) => (type === "number" ? value | 0 : value);
 
 // reactive signals class
 export class Signal {
@@ -56,8 +55,8 @@ export class Signal {
 
   when(callback, dependencies = []) {
     let derivedSignal = new Signal(callback(this.#value));
-    this.onChange((value) => (derivedSignal.value = callback(value)));
-    dependencies.forEach((dependency) => dependency.when(this.#change));
+    this.onChange(value => (derivedSignal.value = callback(value)));
+    dependencies.forEach(dependency => dependency.when(this.#change));
     return derivedSignal;
   }
 }
@@ -79,6 +78,8 @@ class SigNal extends HTMLElement {
     }
   };
 
+  static #plugins = {};
+
   static Signal = Signal;
 
   static hydrate = (selectors, descriptors, exportedSignals) => {
@@ -88,19 +89,23 @@ class SigNal extends HTMLElement {
       for (let name in descriptors) {
         const domNode = scopeMap.get(scope)[name];
         const mapping = rootMap.get(domNode);
+        if (!mapping) continue;
         const properties = descriptors[name];
         for (let property in properties) {
-          const handler = properties[property];
+          let handler = properties[property];
+          if (property in SigNal.#plugins)
+            handler = SigNal.#plugins[property](handler);
           const { name, init } = mapping[property.toLowerCase()] || NONE;
           const { signal, type, id } = (name && signals[name]) || NONE;
           if (exportedSignals instanceof Object && id && signal)
             exportedSignals[id] = signal;
           const attribute = property.slice(1);
-          const callback = (e) =>
+          const callback = e =>
             handler({
               type,
               name: attribute,
               signal,
+              signals,
               init,
               domNode,
               e,
@@ -114,11 +119,13 @@ class SigNal extends HTMLElement {
     }
   };
 
+  static plugin = (name, code) => (SigNal.#plugins[name] = code);
+
   static rerender = ({ signal, name, domNode }, initial = true) =>
-    signal.onChange((value) => (domNode[name] = value), initial);
+    signal.onChange(value => (domNode[name] = value), initial);
 
   static render =
-    (value) =>
+    value =>
     ({ domNode, name }) =>
       (domNode[name] = typeof value === "function" ? value() : value);
 

@@ -9,12 +9,14 @@
     <title>Demo | sig-nal</title>
     <link href="style.css" rel="stylesheet" type="text/css">
     <script type="module" src="src/index.js"></script>
+    <script type="module" src="src/plugins/class-map.js"></script>
   </head>
   <body>
     <div id="counter1">
       <template shadowrootmode="open">
-	<style>button{box-shadow:1px 2px 3px rgba(0,0,0,.3);padding:.5rem;cursor:pointer}</style>
-	<h1>
+	<style>button{box-shadow:1px 2px 3px rgba(0,0,0,.3);padding:.5rem;cursor:pointer}h1{border-bottom: 2px solid currentColor;a{text-decoration:none}&.even{color:green}&.odd{color:red}</style>
+	<h1 class="heading heading-1" .classMap="counter">
+	  <sig-nal ref="h1"></sig-nal>
 	  <a href="https://github.com/cloudspeech/sig-nal" target="_blank" !title="counter" .textContent="title"><sig-nal ref="title"></sig-nal></a>
 	</h1>
 	<div class="container">
@@ -85,6 +87,7 @@ hydrate(["div#counter1", "div.counter2"], {
   counter: { ".textContent": rerender },
   inc: { "@click": ({ signal }) => signal.value++ },
   dec: { "@click": ({ signal }) => signal.value-- },
+  h1: {".classMap": { odd: ({signal}) => signal.when(value => value % 2), even: ({signals:{counter:{signal}}}) => signal.when(value => !(value % 2)) }}
 });
 
 const clockSignals = {},
