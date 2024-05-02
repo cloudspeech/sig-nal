@@ -97,7 +97,7 @@ const dateParts = () =>
   Intl.DateTimeFormat("de-CH", { dateStyle: "full", timeStyle: "long" })
     .formatToParts(new Date())
     .filter(
-      ({ type, value }, i) => type !== "literal" && value !== last[i]?.value,
+      ({ type, value }, i) => type !== "literal" && value !== last[i] && (last[i] = value),
     );
 
 const generate = (parts) => {
