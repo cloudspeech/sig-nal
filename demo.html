@@ -10,11 +10,34 @@
     <link href="style.css" rel="stylesheet" type="text/css">
     <script type="module" src="src/index.js"></script>
     <script type="module" src="src/plugins/class-map.js"></script>
+    <script src="src/plugins/sty-le.js"></script>
   </head>
   <body>
     <div id="counter1">
       <template shadowrootmode="open">
-	<style>button{box-shadow:1px 2px 3px rgba(0,0,0,.3);padding:.5rem;cursor:pointer}h1{border-bottom: 2px solid currentColor;a{text-decoration:none}&.even{color:green}&.odd{color:red}</style>
+	<style>button {
+	  box-shadow:1px 2px 3px rgba(0,0,0,.3);
+	  padding:.5rem;
+	  cursor:pointer
+	  }
+
+	  h1.heading {
+	       border-bottom: 2px solid currentColor;
+	  }
+
+	  h1 a {
+	  text-decoration:none
+	  }
+
+	  h1.even {
+	  color:green
+	  }
+
+	  h1.odd {
+	  color:red
+	  }
+	</style>
+	<sty-le id="counter-styles"></sty-le>
 	<h1 class="heading heading-1" .classMap="counter">
 	  <sig-nal ref="h1"></sig-nal>
 	  <a href="https://github.com/cloudspeech/sig-nal" target="_blank" !title="counter" .textContent="title"><sig-nal ref="title"></sig-nal></a>
@@ -35,7 +58,7 @@
 
     <div class="counter2">
       <template shadowrootmode="open">
-	<style>button{box-shadow:1px 2px 3px rgba(0,0,0,.3);padding:.5rem;cursor:pointer}</style>
+	<sty-le id="counter-styles"></sty-le>
 	<h1 !title="counter">
 	  <sig-nal ref="title">Counters</sig-nal>
 	</h1>
