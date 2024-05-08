@@ -54,7 +54,7 @@ export class Signal {
   when(callback, dependencies = []) {
     let derivedSignal = new Signal(callback(this.#value));
     this.onChange(value => (derivedSignal.value = callback(value)));
-    dependencies.forEach(dependency => dependency.when(this.#change));
+    dependencies.map(dependency => dependency.onChange(this.#change));
     return derivedSignal;
   }
 }
