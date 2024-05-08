@@ -23,7 +23,7 @@ const convert = (value, type) => (type === "number" ? value | 0 : value);
 // reactive signals class
 export class Signal {
   #value;
-  #changes = new EventTarget();
+  #changes = [];
   #dirty = 0;
 
   constructor(newValue) {
@@ -33,9 +33,7 @@ export class Signal {
   #change = () =>
     ++this.#dirty === 1 &&
     queueMicrotask(() => {
-      this.#changes.dispatchEvent(
-        new CustomEvent("change", { detail: this.#value }),
-      );
+      this.#changes.map(fun => fun());
       this.#dirty = 0;
     });
 
@@ -50,7 +48,7 @@ export class Signal {
 
   onChange(doThis, initial) {
     if (initial) doThis(this.#value);
-    this.#changes.addEventListener("change", ({ detail }) => doThis(detail));
+    this.#changes.push(() => doThis(this.#value));
   }
 
   when(callback, dependencies = []) {
