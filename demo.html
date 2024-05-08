@@ -87,14 +87,14 @@
 	<style>.weekday:after{content:','}.day:after{content:'.'}.hour:after,.minute:after{content:':';margin-right: -2px}</style>
 	<h1>Date and Time</h1>
 	<table><tr>
-	  <td class="weekday" .textContent="weekday"><sig-nal new="weekday" id="weekday">Freitag</sig-nal></td>
-	  <td class="day" .textContent="day"><sig-nal new="day" id="day">19</sig-nal></td>
-	  <td class="month" .textContent="month"><sig-nal new="month" id="month">April</sig-nal></td>
-	  <td class="year" .textContent="year"><sig-nal new="year" id="year">2024</sig-nal></td>
-	  <td class="hour" .textContent="hour"><sig-nal new="hour" id="hour">11</sig-nal></td>
-	  <td class="minute" .textContent="minute"><sig-nal new="minute" id="minute">53</sig-nal></td>
-	  <td .textContent="second"><sig-nal new="second" id="second">24</sig-nal></td>
-	  <td .textContent="timeZoneName"><sig-nal new="timeZoneName" id="timeZoneName">MESZ</sig-nal></td>
+	  <td class="weekday" .textContent="weekday"><sig-nal new="weekday" id="weekday"></sig-nal></td>
+	  <td class="day" .textContent="day"><sig-nal new="day" id="day"></sig-nal></td>
+	  <td class="month" .textContent="month"><sig-nal new="month" id="month"></sig-nal></td>
+	  <td class="year" .textContent="year"><sig-nal new="year" id="year"></sig-nal></td>
+	  <td class="hour" .textContent="hour"><sig-nal new="hour" id="hour"></sig-nal></td>
+	  <td class="minute" .textContent="minute"><sig-nal new="minute" id="minute"></sig-nal></td>
+	  <td .textContent="second"><sig-nal new="second" id="second"></sig-nal></td>
+	  <td .textContent="timeZoneName"><sig-nal new="timeZoneName" id="timeZoneName"></sig-nal></td>
 	</tr></table>
       </template>
     </div>
@@ -119,12 +119,12 @@ hydrate(["div#counter1", "div.counter2"], {
   h1: {".classMap": { odd: ({signal}) => signal.when(value => value % 2), even: ({signals:{counter:{signal}}}) => signal.when(value => !(value % 2)) }}
 });
 
-const clockSignals = {},
+let clockSignals = {},
   last = [];
 
 const dateParts = () =>
   Intl.DateTimeFormat("de-CH", { dateStyle: "full", timeStyle: "long" })
-    .formatToParts(new Date())
+    .formatToParts(Date.now())
     .filter(
       ({ type, value }, i) => type !== "literal" && value !== last[i] && (last[i] = value),
     );
@@ -139,8 +139,11 @@ const generate = (parts) => {
 
 hydrate(["div.clock"], generate(dateParts()), clockSignals);
 
-const updateDateParts = () =>
-  dateParts().forEach(({ type, value }) => (clockSignals[type].value = value));
+last = [];
+
+const updateDateParts = () => dateParts().forEach(({ type, value }) => (clockSignals[type].value = value));
+
+updateDateParts();
 
 setInterval(updateDateParts, 1000);
     </script>
