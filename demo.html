@@ -3,11 +3,30 @@
   <head>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
-    <meta name="robots" content="noindex, nofollow"/>
-    <meta name="description" content=""/>
+    <meta name="description" content="Demo of sig-nal. Sig-nal is a tiny web component for server-side rendering with signals."/>
     <link rel="icon" href="favicon.png"/>
     <title>Demo | sig-nal</title>
-    <link href="style.css" rel="stylesheet" type="text/css">
+    <!-- link href="style.css" rel="stylesheet" type="text/css" -->
+    <style>
+body, div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-family: sans-serif;
+}
+
+body {
+    height: 100vh;
+    background-repeat: no-repeat;
+    background-image: radial-gradient( circle 897px at 9% 80.3%,  rgba(55,60,245,1) 0%, rgba(234,161,15,0.90) 100.2% );
+    color: #fff;
+}
+
+details {
+    cursor: pointer;
+    padding: 1rem 3rem;
+}
+</style>
     <script>
       const files = ['index', 'plugins/class-map'];
       const isProduction = location.search.includes('prod');
@@ -15,7 +34,8 @@
           import(`./${isProduction ? 'dist' : 'src'}/${file}${isProduction ? '.min.js' : '.js'}`);
       }
     </script>
-    <script src="src/plugins/sty-le.js"></script>
+    <!-- inlined script src="dist/plugins/sty-le.js" -->
+    <script>(()=>{let e=new Map;class t extends HTMLElement{connectedCallback(){let{id:t}=this,s=e.get(t);s?this.getRootNode().adoptedStyleSheets.push(s):(s=new CSSStyleSheet,s.replaceSync(this.previousElementSibling.textContent),e.set(t,s)),this.remove()}}customElements.define("sty-le",t)})();</script>
   </head>
   <body>
     <div id="counter1">
@@ -92,14 +112,14 @@
 	<style>.weekday:after{content:','}.day:after{content:'.'}.hour:after,.minute:after{content:':';margin-right: -2px}</style>
 	<h1>Date and Time</h1>
 	<table><tr>
-	  <td class="weekday" .textContent="weekday"><sig-nal new="weekday" id="weekday"></sig-nal></td>
-	  <td class="day" .textContent="day"><sig-nal new="day" id="day"></sig-nal></td>
-	  <td class="month" .textContent="month"><sig-nal new="month" id="month"></sig-nal></td>
-	  <td class="year" .textContent="year"><sig-nal new="year" id="year"></sig-nal></td>
-	  <td class="hour" .textContent="hour"><sig-nal new="hour" id="hour"></sig-nal></td>
-	  <td class="minute" .textContent="minute"><sig-nal new="minute" id="minute"></sig-nal></td>
-	  <td .textContent="second"><sig-nal new="second" id="second"></sig-nal></td>
-	  <td .textContent="timeZoneName"><sig-nal new="timeZoneName" id="timeZoneName"></sig-nal></td>
+	  <td class="weekday" .textContent="weekday"><sig-nal new="weekday" id="weekday">Donnerstag</sig-nal></td>
+	  <td class="day" .textContent="day"><sig-nal new="day" id="day">9</sig-nal></td>
+	  <td class="month" .textContent="month"><sig-nal new="month" id="month">Mai</sig-nal></td>
+	  <td class="year" .textContent="year"><sig-nal new="year" id="year">2024</sig-nal></td>
+	  <td class="hour" .textContent="hour"><sig-nal new="hour" id="hour">15</sig-nal></td>
+	  <td class="minute" .textContent="minute"><sig-nal new="minute" id="minute">05</sig-nal></td>
+	  <td .textContent="second"><sig-nal new="second" id="second">05</sig-nal></td>
+	  <td .textContent="timeZoneName"><sig-nal new="timeZoneName" id="timeZoneName">MESZ</sig-nal></td>
 	</tr></table>
       </template>
     </div>
