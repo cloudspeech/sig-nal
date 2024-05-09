@@ -1,6 +1,6 @@
 {
-    "name": "",
-    "short_name": "",
+    "name": "sig-nal demo",
+    "short_name": "signal-demo",
     "icons": [
         {
             "src": "/android-chrome-144x144.png",
