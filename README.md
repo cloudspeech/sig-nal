@@ -4,7 +4,7 @@
 
 ## Demo
 
-<img width="289" alt="Screenshot 2024-04-21 at 00 12 15" src="https://github.com/cloudspeech/sig-nal/assets/850521/fbddeff4-84fb-4ea5-a8c0-42528b33d1d0">
+<img width="365" alt="Screenshot 2024-05-09 at 14 54 32" src="https://github.com/cloudspeech/sig-nal/assets/850521/cc00296a-7744-4ca4-9340-34de3be560c0">
 
 Here is a live [demo](https://cloudspeech.github.io/sig-nal/demo.html).
 
@@ -32,8 +32,7 @@ This is alpha-quality software and as such not ready for production.
       </template>
     </div>
     <script type="module">
-    const {hydrate,
-           rerender} = await customElements.whenDefined("sig-nal");
+    const {hydrate, rerender} = await customElements.whenDefined("sig-nal");
     hydrate(["div#counter"],{
  	     counter: { ".textContent": rerender },
 	     inc: { "@click": ({ signal }) => signal.value++ },
