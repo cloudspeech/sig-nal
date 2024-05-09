@@ -1,7 +1,8 @@
 customElements.whenDefined("sig-nal").then(
   // register new plugin using static class method 'plugin'
-  ({ Signal, plugin }) =>
-    plugin(".classMap", map => parameters => {
+  SigNal => {
+    const { Signal } = SigNal;
+    const pluginCode = map => parameters => {
       // get the classList of the referenced DOM node
       let cl = parameters.domNode.classList;
       // init a signal-valued dependencies set to empty
@@ -36,5 +37,8 @@ customElements.whenDefined("sig-nal").then(
       // - re-executing classMap when a value update happens in the master signal -, with the remaing signals
       // in the array functioning as dependencies to the master signal that *also* trigger an update!
       allSignals[0].when(classMap, allSignals.slice(1));
-    }),
+    };
+
+    SigNal.plugin(".classMap", pluginCode);
+  },
 );
