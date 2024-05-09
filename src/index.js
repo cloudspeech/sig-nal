@@ -1,6 +1,6 @@
 // module constants
-const NONE = {};
-const INIT = [
+let NONE = {};
+let INIT = [
   (root, attributeName) => root[attributeName],
   (root, attributeName) => root.hasAttribute(attributeName),
   (root, attributeName) => root.getAttribute(attributeName),
@@ -13,12 +13,12 @@ class initWeakMap extends WeakMap {
 }
 
 // module globals
-const scopeMap = new initWeakMap();
-const rootMap = new initWeakMap();
-const signalMap = new initWeakMap();
+let scopeMap = new initWeakMap();
+let rootMap = new initWeakMap();
+let signalMap = new initWeakMap();
 
 // helpers
-const convert = (value, type) => (type === "number" ? value | 0 : value);
+let convert = (value, type) => (type === "number" ? value | 0 : value);
 
 // reactive signals class
 class Signal {
@@ -73,7 +73,7 @@ class SigNal extends HTMLElement {
       name = this.#GA(attribute, root),
       specialAttribute = ".?!@".indexOf(firstChar);
     if (specialAttribute >= 0) {
-      const init = INIT[specialAttribute](root, attributeName);
+      let init = INIT[specialAttribute](root, attributeName);
       rootMap.use(root)[attribute] = { init, name };
       queueMicrotask(() => root.removeAttribute(attribute));
     }
@@ -83,35 +83,36 @@ class SigNal extends HTMLElement {
 
   static hydrate = (selectors, descriptors, exportedSignals) => {
     for (let selector of selectors) {
-      const scope = document.querySelector(selector).shadowRoot;
-      const signals = signalMap.get(scope) || NONE;
+      let scope = document.querySelector(selector).shadowRoot;
+      let signals = signalMap.get(scope) || NONE;
       for (let name in descriptors) {
-        const domNode = scopeMap.get(scope)[name];
-        const mapping = rootMap.get(domNode);
-        if (!mapping) continue;
-        const properties = descriptors[name];
-        for (let property in properties) {
-          let handler = properties[property];
-          if (property in plugins) handler = plugins[property](handler);
-          const { name, init } = mapping[property.toLowerCase()] || NONE;
-          const { signal, type, id } = (name && signals[name]) || NONE;
-          if (exportedSignals instanceof Object && id && signal)
-            exportedSignals[id] = signal;
-          const attribute = property.slice(1);
-          const callback = e =>
-            handler({
-              type,
-              name: attribute,
-              signal,
-              signals,
-              init,
-              domNode,
-              e,
-            });
-          name &&
-            (property.startsWith("@")
-              ? domNode.addEventListener(attribute, callback)
-              : queueMicrotask(callback));
+        let domNode = scopeMap.get(scope)[name];
+        let mapping = rootMap.get(domNode);
+        if (mapping) {
+          let properties = descriptors[name];
+          for (let property in properties) {
+            let handler = properties[property];
+            if (property in plugins) handler = plugins[property](handler);
+            let { name, init } = mapping[property.toLowerCase()] || NONE;
+            let { signal, type, id } = (name && signals[name]) || NONE;
+            if (exportedSignals instanceof Object && id && signal)
+              exportedSignals[id] = signal;
+            let attribute = property.slice(1);
+            let callback = e =>
+              handler({
+                type,
+                name: attribute,
+                signal,
+                signals,
+                init,
+                domNode,
+                e,
+              });
+            name &&
+              (property.startsWith("@")
+                ? domNode.addEventListener(attribute, callback)
+                : queueMicrotask(callback));
+          }
         }
       }
     }
@@ -137,12 +138,12 @@ class SigNal extends HTMLElement {
       (domNode[name] = typeof value === "function" ? value() : value);
 
   connectedCallback() {
-    const root = this[this.#GA("for") || "parentNode"];
-    const scope = this.getRootNode();
-    const isSignal = this.#GA("new");
-    const name = isSignal || this.#GA("ref");
-    const type = this.#GA("type");
-    const { id, textContent } = this;
+    let root = this[this.#GA("for") || "parentNode"];
+    let scope = this.getRootNode();
+    let isSignal = this.#GA("new");
+    let name = isSignal || this.#GA("ref");
+    let type = this.#GA("type");
+    let { id, textContent } = this;
 
     scopeMap.use(scope)[name] = root;
 
