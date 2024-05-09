@@ -8,8 +8,13 @@
     <link rel="icon" href="favicon.png"/>
     <title>Demo | sig-nal</title>
     <link href="style.css" rel="stylesheet" type="text/css">
-    <script type="module" src="src/index.js"></script>
-    <script type="module" src="src/plugins/class-map.js"></script>
+    <script>
+      const files = ['index', 'plugins/class-map'];
+      const isProduction = location.search.includes('prod');
+      for(let file of files) {
+          import(`./${isProduction ? 'dist' : 'src'}/${file}${isProduction ? '.min.js' : '.js'}`);
+      }
+    </script>
     <script src="src/plugins/sty-le.js"></script>
   </head>
   <body>
@@ -106,46 +111,61 @@
     </footer>
 
     <script type="module">
-const {hydrate, render, rerender} = await customElements.whenDefined("sig-nal");
+const { hydrate, render, rerender, usable } = await customElements.whenDefined("sig-nal");
+
+await usable(['.classMap']);
 
 hydrate(["div#counter1", "div.counter2"], {
-  title: {
-    "!title": rerender,
-    ".textContent": render(document.title)
-  },
-  counter: { ".textContent": rerender },
-  inc: { "@click": ({ signal }) => signal.value++ },
-  dec: { "@click": ({ signal }) => signal.value-- },
-  h1: {".classMap": { odd: ({signal}) => signal.when(value => value % 2), even: ({signals:{counter:{signal}}}) => signal.when(value => !(value % 2)) }}
-});
+    title: {
+      "!title": rerender,
+      ".textContent": render(document.title),
+    },
+    counter: { ".textContent": rerender },
+    inc: { "@click": ({ signal }) => signal.value++ },
+    dec: { "@click": ({ signal }) => signal.value-- },
+    h1: {
+      ".classMap": {
+        odd: ({ signal }) => signal.when((value) => value % 2),
+        even: ({
+          signals: {
+            counter: { signal },
+          },
+        }) => signal.when((value) => !(value % 2)),
+      },
+    },
+  });
 
-let clockSignals = {},
+  let clockSignals = {},
+    last = [];
+
+  const dateParts = () =>
+    Intl.DateTimeFormat("de-CH", { dateStyle: "full", timeStyle: "long" })
+      .formatToParts(Date.now())
+      .filter(
+        ({ type, value }, i) =>
+          type !== "literal" && value !== last[i] && (last[i] = value),
+      );
+
+  const generate = (parts) => {
+    const renderSpec = {};
+    parts.forEach(
+      ({ type, value }) => (renderSpec[type] = { ".textContent": rerender }),
+    );
+    return renderSpec;
+  };
+
+  hydrate(["div.clock"], generate(dateParts()), clockSignals);
+
   last = [];
 
-const dateParts = () =>
-  Intl.DateTimeFormat("de-CH", { dateStyle: "full", timeStyle: "long" })
-    .formatToParts(Date.now())
-    .filter(
-      ({ type, value }, i) => type !== "literal" && value !== last[i] && (last[i] = value),
+  const updateDateParts = () =>
+    dateParts().forEach(
+      ({ type, value }) => (clockSignals[type].value = value),
     );
 
-const generate = (parts) => {
-  const renderSpec = {};
-  parts.forEach(
-    ({ type, value }) => (renderSpec[type] = { ".textContent": rerender }),
-  );
-  return renderSpec;
-};
+  updateDateParts();
 
-hydrate(["div.clock"], generate(dateParts()), clockSignals);
-
-last = [];
-
-const updateDateParts = () => dateParts().forEach(({ type, value }) => (clockSignals[type].value = value));
-
-updateDateParts();
-
-setInterval(updateDateParts, 1000);
+  setInterval(updateDateParts, 1000);
     </script>
   </body>
 </html>

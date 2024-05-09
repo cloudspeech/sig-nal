@@ -21,7 +21,7 @@ const signalMap = new initWeakMap();
 const convert = (value, type) => (type === "number" ? value | 0 : value);
 
 // reactive signals class
-export class Signal {
+class Signal {
   #value;
   #changes = [];
   #dirty = 0;
@@ -61,6 +61,9 @@ export class Signal {
 
 // <sig-nal> class
 
+let plugins = {},
+  loaded = {};
+
 class SigNal extends HTMLElement {
   #GA = (name, node = this) => node.getAttribute(name);
 
@@ -76,8 +79,6 @@ class SigNal extends HTMLElement {
     }
   };
 
-  static #plugins = {};
-
   static Signal = Signal;
 
   static hydrate = (selectors, descriptors, exportedSignals) => {
@@ -91,8 +92,7 @@ class SigNal extends HTMLElement {
         const properties = descriptors[name];
         for (let property in properties) {
           let handler = properties[property];
-          if (property in SigNal.#plugins)
-            handler = SigNal.#plugins[property](handler);
+          if (property in plugins) handler = plugins[property](handler);
           const { name, init } = mapping[property.toLowerCase()] || NONE;
           const { signal, type, id } = (name && signals[name]) || NONE;
           if (exportedSignals instanceof Object && id && signal)
@@ -117,7 +117,16 @@ class SigNal extends HTMLElement {
     }
   };
 
-  static plugin = (name, code) => (SigNal.#plugins[name] = code);
+  static plugin = (name, code) =>
+    (plugins[name] = code) && loaded[name] && loaded[name]();
+
+  static usable = (arrayOfPluginNames, promises = []) => {
+    for (let name of arrayOfPluginNames) {
+      if (!plugins[name])
+        promises.push(new Promise(resolve => (loaded[name] = resolve)));
+    }
+    return Promise.all(promises);
+  };
 
   static rerender = ({ signal, name, domNode }, initial = true) =>
     signal.onChange(value => (domNode[name] = value), initial);
