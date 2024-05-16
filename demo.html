@@ -40,40 +40,12 @@ details {
       }
     </script>
     <!-- inlined script src="dist/plugins/sty-le.js" -->
-    <script>(()=>{let e=new Map;class t extends HTMLElement{connectedCallback(){let{id:t}=this,s=e.get(t);s?this.getRootNode().adoptedStyleSheets.push(s):(s=new CSSStyleSheet,s.replaceSync(this.previousElementSibling.textContent),e.set(t,s)),this.remove()}}customElements.define("sty-le",t)})();</script>
+    <script>(()=>{let e=new Map;class t extends HTMLElement{async connectedCallback(){let{id:t}=this,s=e.get(t);if(!s){s=new CSSStyleSheet;let i=this.getAttribute("src"),n=new Promise((async e=>{let t=i?await(await fetch(i)).text():this.previousElementSibling.textContent;s.replaceSync(t),e(s)}));e.set(t,n)}s&&this.getRootNode().adoptedStyleSheets.push(await s),this.remove()}}customElements.define("sty-le",t)})();</script>
   </head>
   <body>
     <div id="counter1">
       <template shadowrootmode="open">
-	<style>button {
-	  box-shadow:1px 2px 3px rgba(0,0,0,.3);
-	  padding:.5rem;
-	  cursor:pointer
-	  }
-
-	  h1.heading {
-	       border-bottom: 2px solid currentColor;
-	  }
-
-	  h1 a {
-	  text-decoration:none
-	  }
-
-	  h1.even {
-	  color:green
-	  }
-
-	  h1.odd {
-	  color:red
-	  }
-
-	  span {
-	  display: inline-block;
-	  min-width: 1em;
-	  text-align: center;
-	  }
-	</style>
-	<sty-le id="counter-styles"></sty-le>
+	<sty-le id="counter-styles" src="./counter.css"></sty-le>
 	<h1 class="heading heading-1" .classMap="counter">
 	  <sig-nal ref="h1"></sig-nal>
 	  <a href="https://github.com/cloudspeech/sig-nal" target="_blank" !title="counter" .textContent="title"><sig-nal ref="title"></sig-nal></a>
