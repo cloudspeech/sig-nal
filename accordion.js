@@ -8,7 +8,7 @@ customElements.whenDefined("sig-nal").then( ({hydrate}) =>
        const slot = button.parentNode.nextElementSibling;
        const isOpen = button.classList.contains('open');
        button.classList[isOpen ? 'remove' : 'add']('open');
-       button.title = isOpen ? 'close' : 'open';
+       button.title = isOpen ? 'open' : 'close';
        slot.classList[isOpen ? 'remove' : 'add']('show');
        }
      }
