@@ -21,15 +21,15 @@ body, div {
 }
 
 body {
-    height: 250vh;
     background-repeat: no-repeat;
-    background-image: radial-gradient( circle 400vh at 9% 80.3%,  rgba(55,60,245,1) 0%, rgba(234,161,15,0.90) 100.2% );
+    background-image: radial-gradient( circle 2000vh at 9% 80.3%,  rgba(55,60,245,1) 0%, rgba(234,161,15,0.90) 100.2% );
     color: #fff;
 }
 
 details {
     cursor: pointer;
     padding: 1rem 3rem;
+    margin-bottom: 150rem
 }
 
 acc-ordion {
@@ -156,8 +156,8 @@ color: #464de4
       <p slot="a1">Because we can.</p>
       <p slot="a2">Using vanilla JS and web components!</p>
       <p slot="a3">A demo for server-side rendering with &lt;sig-nal&gt;.</p>
-      <img src="" onerror="import('./accordion.js')"/>
     </acc-ordion>
+    <img src="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221%22%20height%3D%221%22%2F%3E" width="1" height="1" loading="lazy" onload="import('./accordion.js')">
 
     <h2>FAQ 2</h2>
 
@@ -201,8 +201,8 @@ color: #464de4
       <p slot="a1">Because we can.</p>
       <p slot="a2">Using vanilla JS and web components!</p>
       <p slot="a3">A demo for server-side rendering with &lt;sig-nal&gt;.</p>
-      <img src="" onerror="import('./accordion.js')"/>
     </acc-ordion>
+    <img src="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221%22%20height%3D%221%22%2F%3E" width="1" height="1" loading="lazy" onload="import('./accordion.js')">
 
     <script type="module">
 const { hydrate, render, rerender, usable } = await customElements.whenDefined("sig-nal");
