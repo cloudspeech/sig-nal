@@ -6,7 +6,7 @@
 
 <img width="353" alt="Screenshot 2024-05-17 at 18 18 04" src="https://github.com/cloudspeech/sig-nal/assets/850521/47488e6e-2288-412a-ac6a-0d4dfdd1ef9f">
 
-Here is a live [demo](https://cloudspeech.github.io/sig-nal/demo.html).
+Here is a live [demo](https://cloudspeech.github.io/sig-nal/demo.html?prod).
 
 ## Status
 
