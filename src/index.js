@@ -13,6 +13,7 @@ class initWeakMap extends WeakMap {
 }
 
 // module globals
+let shadowMap = {};
 let scopeMap = new initWeakMap();
 let rootMap = new initWeakMap();
 let signalMap = new initWeakMap();
@@ -82,8 +83,13 @@ class SigNal extends HTMLElement {
   static Signal = Signal;
 
   static hydrate = (selectors, descriptors, exportedSignals) => {
-    for (let selector of selectors) {
-      let scope = document.querySelector(selector).shadowRoot;
+    let scopes =
+      typeof selectors === "string"
+        ? shadowMap[selectors]
+        : selectors.map(
+            selector => document.querySelector(selector).shadowRoot,
+          );
+    for (let scope of scopes) {
       let signals = signalMap.get(scope) || NONE;
       for (let name in descriptors) {
         let domNode = scopeMap.get(scope)[name];
@@ -145,6 +151,7 @@ class SigNal extends HTMLElement {
     let type = this.#GA("type");
     let { id, textContent } = this;
 
+    (shadowMap[name] = shadowMap[name] || []).push(scope);
     scopeMap.use(scope)[name] = root;
 
     if (isSignal) {

@@ -1,5 +1,5 @@
 customElements.whenDefined("sig-nal").then( ({hydrate}) =>
-  hydrate(['acc-ordion'], {
+  hydrate('accordion', {
    'accordion': {'@click':
        ({e}) => {
        const buttons = e.composedPath().filter(node => node.tagName === 'BUTTON');

@@ -21,9 +21,9 @@ body, div {
 }
 
 body {
-    height: 150vh;
+    height: 250vh;
     background-repeat: no-repeat;
-    background-image: radial-gradient( circle 897px at 9% 80.3%,  rgba(55,60,245,1) 0%, rgba(234,161,15,0.90) 100.2% );
+    background-image: radial-gradient( circle 400vh at 9% 80.3%,  rgba(55,60,245,1) 0%, rgba(234,161,15,0.90) 100.2% );
     color: #fff;
 }
 
@@ -109,6 +109,11 @@ color: #464de4
       </template>
     </div>
 
+    <details><summary>Info</summary>
+      <p>Demo (c) 2024 by Markus Walther. Witness how both counter/FAQ instances are independent of each other, thanks to shadowRoot scoping!
+	In Chrome DevTools, enable Rendering &rarr; Paint flashing to see fine-grained DOM updates!</p>
+    </details>
+
     <h2>FAQ</h2>
 
     <acc-ordion>
@@ -151,15 +156,53 @@ color: #464de4
       <p slot="a1">Because we can.</p>
       <p slot="a2">Using vanilla JS and web components!</p>
       <p slot="a3">A demo for server-side rendering with &lt;sig-nal&gt;.</p>
-      <script type="module" src="./accordion.js"></script>
+      <img src="" onerror="import('./accordion.js')"/>
     </acc-ordion>
 
-    <footer>
-      <details><summary>Info</summary>
-	<p>Demo (c) 2024 by Markus Walther. Witness how both counter instances are independent of each other, thanks to shadowRoot scoping!
-	  In Chrome DevTools, enable Rendering &rarr; Paint flashing to see fine-grained DOM updates!</p>
-      </details>
-    </footer>
+    <h2>FAQ 2</h2>
+
+    <acc-ordion>
+      <template shadowrootmode="open">
+	<link href="./accordion.css" rel="stylesheet" type="text/css">
+	<ul @click="accordion">
+	  <sig-nal ref="accordion"></sig-nal>
+	  <li>
+	    <span>Why?</span>
+	    <button title="open">
+	      <svg viewBox="0 0 24 24">
+		<path fill="currentColor" d="M0 11h24v2H0z"/>
+		<path fill="currentColor" d="M13 0h-2v24h2z" class="closed"/>
+	      </svg>
+	    </button>
+	  </li>
+	  <li class="content"><slot name="a1"></slot></li>
+	  <li>
+	    <span>How?</span>
+	    <button title="open">
+	      <svg viewBox="0 0 24 24">
+		<path fill="currentColor" d="M0 11h24v2H0z"/>
+		<path fill="currentColor" d="M13 0h-2v24h2z" class="closed"/>
+	      </svg>
+	    </button>
+	  </li>
+	  <li class="content"><slot name="a2"></slot></li>
+	  <li>
+	    <span>What?</span>
+	    <button title="open">
+	      <svg viewBox="0 0 24 24">
+		<path fill="currentColor" d="M0 11h24v2H0z"/>
+		<path fill="currentColor" d="M13 0h-2v24h2z" class="closed"/>
+	      </svg>
+	    </button>
+	  </li>
+	  <li class="content"><slot name="a3"></slot></li>
+	</ul>
+      </template>
+      <p slot="a1">Because we can.</p>
+      <p slot="a2">Using vanilla JS and web components!</p>
+      <p slot="a3">A demo for server-side rendering with &lt;sig-nal&gt;.</p>
+      <img src="" onerror="import('./accordion.js')"/>
+    </acc-ordion>
 
     <script type="module">
 const { hydrate, render, rerender, usable } = await customElements.whenDefined("sig-nal");
