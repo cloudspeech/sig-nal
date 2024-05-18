@@ -27,7 +27,7 @@ svg {
     width: 1rem;
     height: 1rem;
 }
-.content, svg path.closed {
+svg path.closed {
     display: none
 }
 button:not(.open) svg path.closed {
@@ -36,10 +36,24 @@ button:not(.open) svg path.closed {
 slot {
     padding: 0 1rem
 }
+.content {
+    display: grid;
+    grid-template-rows: 0fr;
+    padding: 0;
+    transition: grid-template-rows 500ms
+}
 .content.show {
-    display: block;
+    grid-template-rows: 1fr;
+    padding: 1rem;
     border-top: 0
 }
+.content > * {
+    display: block;
+    overflow: hidden
+}
 .content:last-child {
+    border-bottom: 0
+}
+.content.show:last-child {
     padding-bottom: .5rem
 }
