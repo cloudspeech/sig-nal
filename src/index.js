@@ -90,34 +90,39 @@ class SigNal extends HTMLElement {
             selector => document.querySelector(selector).shadowRoot,
           );
     for (let scope of scopes) {
-      let signals = signalMap.get(scope) || NONE;
-      for (let name in descriptors) {
-        let domNode = scopeMap.get(scope)[name];
-        let mapping = rootMap.get(domNode);
-        if (mapping) {
-          let properties = descriptors[name];
-          for (let property in properties) {
-            let handler = properties[property];
-            if (property in plugins) handler = plugins[property](handler);
-            let { name, init } = mapping[property.toLowerCase()] || NONE;
-            let { signal, type, id } = (name && signals[name]) || NONE;
-            if (exportedSignals instanceof Object && id && signal)
-              exportedSignals[id] = signal;
-            let attribute = property.slice(1);
-            let callback = e =>
-              handler({
-                type,
-                name: attribute,
-                signal,
-                signals,
-                init,
-                domNode,
-                e,
-              });
-            name &&
-              (property.startsWith("@")
-                ? domNode.addEventListener(attribute, callback)
-                : queueMicrotask(callback));
+      // scope already h(ydrated)?
+      if (!scope.h) {
+        // no, mark it as such to de-duplicate hydrate requests per scope
+        scope.h = 1;
+        let signals = signalMap.get(scope) || NONE;
+        for (let name in descriptors) {
+          let domNode = scopeMap.get(scope)[name];
+          let mapping = rootMap.get(domNode);
+          if (mapping) {
+            let properties = descriptors[name];
+            for (let property in properties) {
+              let handler = properties[property];
+              if (property in plugins) handler = plugins[property](handler);
+              let { name, init } = mapping[property.toLowerCase()] || NONE;
+              let { signal, type, id } = (name && signals[name]) || NONE;
+              if (exportedSignals instanceof Object && id && signal)
+                exportedSignals[id] = signal;
+              let attribute = property.slice(1);
+              let callback = e =>
+                handler({
+                  type,
+                  name: attribute,
+                  signal,
+                  signals,
+                  init,
+                  domNode,
+                  e,
+                });
+              name &&
+                (property.startsWith("@")
+                  ? domNode.addEventListener(attribute, callback)
+                  : queueMicrotask(callback));
+            }
           }
         }
       }
