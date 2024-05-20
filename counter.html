@@ -1,0 +1,25 @@
+<script type=module src="./dist/index.min.js"></script>
+<div class="counter-example">
+  <template shadowrootmode="open">
+    <style>:host{background-image: linear-gradient(to bottom right,#bfdbfe,#86efac,#fef08a)}
+      *:not(style,span){display:flex;font-family:sans-serif;font-size:x-large;padding:1rem}
+      button{border-radius:50%;border:2px solid #000;padding:1rem 1.5rem;cursor:pointer}
+      .value{font-weight:bold}
+    </style>
+    <h3>Interactive island</h3>
+    <p>The server supplied the initial &nbsp;<span class="value">value</span>.</p>
+    <div>
+      <button @click="counter"><sig-nal ref="dec">-</sig-nal></button>
+      <div class="value" .textContent="counter"><sig-nal new="counter" type="number">3</sig-nal></div>
+      <button @click="counter"><sig-nal ref="inc">+</sig-nal></button>
+    </div>
+  </template>
+</div>
+<script type=module>
+  const { hydrate, rerender } = await customElements.whenDefined("sig-nal");
+  hydrate([".counter-example"], {
+    counter: { ".textContent": rerender },
+    inc: { "@click": ({ signal }) => signal.value++ },
+    dec: { "@click": ({ signal }) => signal.value-- }
+  })
+</script>
