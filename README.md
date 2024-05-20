@@ -4,7 +4,7 @@
 
 ## Demo
 
-<img width="353" alt="Screenshot 2024-05-17 at 18 18 04" src="https://github.com/cloudspeech/sig-nal/assets/850521/47488e6e-2288-412a-ac6a-0d4dfdd1ef9f">
+<img width="376" alt="Screenshot 2024-05-20 at 17 03 09" src="https://github.com/cloudspeech/sig-nal/assets/850521/ec810682-3458-4f2b-981c-97d16138dbc8">
 
 Here is a live [demo](https://cloudspeech.github.io/sig-nal/demo.html?prod).
 
