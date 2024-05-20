@@ -14,30 +14,6 @@ This is alpha-quality software and as such not ready for production.
 
 ## Counter Example
 
-```html
-    <div id="counter">
-      <template shadowrootmode="open">
-	<h1>Counter Example</h1>
-	<div class="container">
-	  <button @click="counter">
-	    <sig-nal ref="inc">+</sig-nal>
-	  </button>
-	  <span .textContent="counter">
-	    <sig-nal new="counter" type="number">0</sig-nal>
-          </span>
-	  <button @click="counter">
-	    <sig-nal ref="dec">-</sig-nal>
-	  </button>
-	</div>
-      </template>
-    </div>
-    <script type="module">
-    const {hydrate, rerender} = await customElements.whenDefined("sig-nal");
-    hydrate(["div#counter"],{
- 	     counter: { ".textContent": rerender },
-	     inc: { "@click": ({ signal }) => signal.value++ },
-	     dec: { "@click": ({ signal }) => signal.value-- },
-	     });
-    </script>
-```
+No build needed, static HTML and 6 lines of JavaScript. Compares favourably to [Fresh framework by Deno](https://fresh.deno.dev/) and others! [Try it out!](https://cloudspeech.github.io/sig-nal/counter.html)
 
+<img width="1181" alt="Screenshot 2024-05-20 at 17 56 37" src="https://github.com/cloudspeech/sig-nal/assets/850521/3b10f60c-2b5a-45b5-96d7-b618fea2035e">
