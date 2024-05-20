@@ -29,15 +29,6 @@ body {
 details {
     cursor: pointer;
     padding: 1rem 3rem;
-    margin-bottom: 150rem
-}
-
-acc-ordion {
-    width: 50%
-}
-
-acc-ordion p {
-color: #464de4
 }
 </style>
     <script>
@@ -49,6 +40,8 @@ color: #464de4
     </script>
     <!-- inlined script src="dist/plugins/sty-le.js" -->
     <script>(()=>{let e=new Map;class t extends HTMLElement{async connectedCallback(){let{id:t}=this,s=e.get(t);if(!s){s=new CSSStyleSheet;let i=this.getAttribute("src"),n=new Promise((async e=>{let t=i?await(await fetch(i)).text():this.previousElementSibling.textContent;s.replaceSync(t),e(s)}));e.set(t,n)}s&&this.getRootNode().adoptedStyleSheets.push(await s),this.remove()}}customElements.define("sty-le",t)})();</script>
+    <!-- inlined script src="dist/plugins/part-ial.js" -->
+    <script>(()=>{class e extends HTMLElement{#e;get src(){return this.#e||(this.#e=this.getAttribute("src"))}set src(e){this.#e=e,this.connectedCallback()}async connectedCallback(){return this.src&&await(await fetch(this.src)).body.pipeThrough(new TextDecoderStream).pipeTo((e=>{let t=document.implementation.createHTMLDocument();t.write("<article>");let r=t.body.firstElementChild;return e.appendChild(r),new WritableStream({write(e){t.write(e)},close(){t.close(),function e(t){t.querySelectorAll("template[shadowrootmode]").forEach((t=>{let r=t.parentNode.attachShadow({mode:"open"});r.appendChild(t.content),t.remove(),e(r)}))}(r)},abort(e){t.close(),console.error(`part-ial aborted: ${e}`)}})})(this))}}customElements.define("part-ial",e)})();</script>
   </head>
   <body>
     <div id="counter1">
@@ -114,95 +107,15 @@ color: #464de4
 	In Chrome DevTools, enable Rendering &rarr; Paint flashing to see fine-grained DOM updates!</p>
     </details>
 
-    <h2>FAQ</h2>
-
-    <acc-ordion>
+    <div class="more-stuff">
       <template shadowrootmode="open">
-	<link href="./accordion.css" rel="stylesheet" type="text/css">
-	<ul @click="accordion">
-	  <sig-nal ref="accordion"></sig-nal>
-	  <li>
-	    <span>Why?</span>
-	    <button title="open">
-	      <svg viewBox="0 0 24 24">
-		<path fill="currentColor" d="M0 11h24v2H0z"/>
-		<path fill="currentColor" d="M13 0h-2v24h2z" class="closed"/>
-	      </svg>
-	    </button>
-	  </li>
-	  <li class="content"><slot name="a1"></slot></li>
-	  <li>
-	    <span>How?</span>
-	    <button title="open">
-	      <svg viewBox="0 0 24 24">
-		<path fill="currentColor" d="M0 11h24v2H0z"/>
-		<path fill="currentColor" d="M13 0h-2v24h2z" class="closed"/>
-	      </svg>
-	    </button>
-	  </li>
-	  <li class="content"><slot name="a2"></slot></li>
-	  <li>
-	    <span>What?</span>
-	    <button title="open">
-	      <svg viewBox="0 0 24 24">
-		<path fill="currentColor" d="M0 11h24v2H0z"/>
-		<path fill="currentColor" d="M13 0h-2v24h2z" class="closed"/>
-	      </svg>
-	    </button>
-	  </li>
-	  <li class="content"><slot name="a3"></slot></li>
-	</ul>
+	<style>button{box-shadow:1px 2px 3px rgba(0,0,0,.3);padding:.5rem;cursor:pointer;margin-bottom:150rem}acc-ordion{display:block;width:100%}acc-ordion p{color:#464de4}</style>
+        <button @click="partial">
+	  <sig-nal ref="more">More</sig-nal>
+	</button>
+	<part-ial .src="partial"><sig-nal new="partial"></sig-nal></part-ial>
       </template>
-      <p slot="a1">Because we can.</p>
-      <p slot="a2">Using vanilla JS and web components!</p>
-      <p slot="a3">A demo for server-side rendering with &lt;sig-nal&gt;.</p>
-    </acc-ordion>
-    <img src="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221%22%20height%3D%221%22%2F%3E" alt="load accordion" width="1" height="1" loading="lazy" onload="import('./accordion.js')">
-
-    <h2>FAQ 2</h2>
-
-    <acc-ordion>
-      <template shadowrootmode="open">
-	<link href="./accordion.css" rel="stylesheet" type="text/css">
-	<ul @click="accordion">
-	  <sig-nal ref="accordion"></sig-nal>
-	  <li>
-	    <span>Why?</span>
-	    <button title="open">
-	      <svg viewBox="0 0 24 24">
-		<path fill="currentColor" d="M0 11h24v2H0z"/>
-		<path fill="currentColor" d="M13 0h-2v24h2z" class="closed"/>
-	      </svg>
-	    </button>
-	  </li>
-	  <li class="content"><slot name="a1"></slot></li>
-	  <li>
-	    <span>How?</span>
-	    <button title="open">
-	      <svg viewBox="0 0 24 24">
-		<path fill="currentColor" d="M0 11h24v2H0z"/>
-		<path fill="currentColor" d="M13 0h-2v24h2z" class="closed"/>
-	      </svg>
-	    </button>
-	  </li>
-	  <li class="content"><slot name="a2"></slot></li>
-	  <li>
-	    <span>What?</span>
-	    <button title="open">
-	      <svg viewBox="0 0 24 24">
-		<path fill="currentColor" d="M0 11h24v2H0z"/>
-		<path fill="currentColor" d="M13 0h-2v24h2z" class="closed"/>
-	      </svg>
-	    </button>
-	  </li>
-	  <li class="content"><slot name="a3"></slot></li>
-	</ul>
-      </template>
-      <p slot="a1">Because we can.</p>
-      <p slot="a2">Using vanilla JS and web components!</p>
-      <p slot="a3">A demo for server-side rendering with &lt;sig-nal&gt;.</p>
-    </acc-ordion>
-    <img src="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221%22%20height%3D%221%22%2F%3E" alt="load accordion" width="1" height="1" loading="lazy" onload="import('./accordion.js')">
+    </div>
 
     <script type="module">
 const { hydrate, render, rerender, usable } = await customElements.whenDefined("sig-nal");
@@ -260,6 +173,11 @@ hydrate(["div#counter1", "div.counter2"], {
   updateDateParts();
 
   setInterval(updateDateParts, 1000);
+
+  hydrate([".more-stuff"], {
+    more: { "@click": ({domNode, signal}) => ( (domNode.disabled = true) && (signal.value = "./accordion.html") ) },
+    partial: { ".src": rerender }
+  });
     </script>
   </body>
 </html>

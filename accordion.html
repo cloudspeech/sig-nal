@@ -1,0 +1,89 @@
+<h2>FAQ</h2>
+
+<acc-ordion>
+  <template shadowrootmode="open">
+    <link href="./accordion.css" rel="stylesheet" type="text/css">
+    <ul @click="accordion">
+      <sig-nal ref="accordion"></sig-nal>
+	  <li>
+	    <span>Why?</span>
+	    <button title="open">
+	      <svg viewBox="0 0 24 24">
+		<path fill="currentColor" d="M0 11h24v2H0z"/>
+		<path fill="currentColor" d="M13 0h-2v24h2z" class="closed"/>
+	      </svg>
+	    </button>
+	  </li>
+      <li class="content"><slot name="a1"></slot></li>
+      <li>
+	<span>How?</span>
+	<button title="open">
+	  <svg viewBox="0 0 24 24">
+	    <path fill="currentColor" d="M0 11h24v2H0z"/>
+	    <path fill="currentColor" d="M13 0h-2v24h2z" class="closed"/>
+	  </svg>
+	</button>
+      </li>
+      <li class="content"><slot name="a2"></slot></li>
+      <li>
+	<span>What?</span>
+	<button title="open">
+	  <svg viewBox="0 0 24 24">
+	    <path fill="currentColor" d="M0 11h24v2H0z"/>
+	    <path fill="currentColor" d="M13 0h-2v24h2z" class="closed"/>
+	  </svg>
+	</button>
+      </li>
+      <li class="content"><slot name="a3"></slot></li>
+    </ul>
+  </template>
+  <p slot="a1">Because we can.</p>
+  <p slot="a2">Using vanilla JS and web components!</p>
+  <p slot="a3">A demo for server-side rendering with &lt;sig-nal&gt;.</p>
+</acc-ordion>
+<img src="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221%22%20height%3D%221%22%2F%3E" alt="load accordion" width="1" height="1" loading="lazy" onload="import('./accordion.js')">
+
+<h2>FAQ 2</h2>
+
+<acc-ordion>
+  <template shadowrootmode="open">
+    <link href="./accordion.css" rel="stylesheet" type="text/css">
+    <ul @click="accordion">
+      <sig-nal ref="accordion"></sig-nal>
+      <li>
+	<span>Why?</span>
+	<button title="open">
+	  <svg viewBox="0 0 24 24">
+	    <path fill="currentColor" d="M0 11h24v2H0z"/>
+	    <path fill="currentColor" d="M13 0h-2v24h2z" class="closed"/>
+	  </svg>
+	</button>
+      </li>
+      <li class="content"><slot name="a1"></slot></li>
+      <li>
+	<span>How?</span>
+	<button title="open">
+	  <svg viewBox="0 0 24 24">
+	    <path fill="currentColor" d="M0 11h24v2H0z"/>
+	    <path fill="currentColor" d="M13 0h-2v24h2z" class="closed"/>
+	  </svg>
+	</button>
+      </li>
+      <li class="content"><slot name="a2"></slot></li>
+      <li>
+	<span>What?</span>
+	<button title="open">
+	  <svg viewBox="0 0 24 24">
+	    <path fill="currentColor" d="M0 11h24v2H0z"/>
+	    <path fill="currentColor" d="M13 0h-2v24h2z" class="closed"/>
+	  </svg>
+	</button>
+      </li>
+      <li class="content"><slot name="a3"></slot></li>
+    </ul>
+  </template>
+  <p slot="a1">Because we can.</p>
+  <p slot="a2">Using vanilla JS and web components!</p>
+  <p slot="a3">A demo for server-side rendering with &lt;sig-nal&gt;.</p>
+</acc-ordion>
+<img src="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221%22%20height%3D%221%22%2F%3E" alt="load accordion" width="1" height="1" loading="lazy" onload="import('./accordion.js')">

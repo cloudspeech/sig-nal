@@ -40,3 +40,15 @@ console.log('Brotli -11:', brotliCompressed.length, 'Bytes');
 gzipCompressed = Bun.gzipSync(minified, {level: 9});
 
 console.log('Gzip -9:', gzipCompressed.length, 'Bytes');
+
+minified = readFileSync('dist/plugins/part-ial.min.js');
+
+console.log('\ndist/plugins/part-ial.min.js -','Uncompressed, minified:', minified.length, 'Bytes');
+
+brotliCompressed = compress(minified);
+
+console.log('Brotli -11:', brotliCompressed.length, 'Bytes');
+
+gzipCompressed = Bun.gzipSync(minified, {level: 9});
+
+console.log('Gzip -9:', gzipCompressed.length, 'Bytes');

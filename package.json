@@ -5,8 +5,8 @@
   "main": "dist/index.min.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-      "format":"bun run prettier --arrow-parens=avoid --write src/index.js; bun run prettier --arrow-parens=avoid --write src/plugins/class-map.js; bun run prettier --arrow-parens=avoid --write src/plugins/sty-le.js",
-    "build": "bun run terser src/index.js --module --compress ecma=2022,passes=2 --mangle > dist/index.min.js; bun run terser src/plugins/class-map.js --module --compress ecma=2022,passes=2 --mangle > dist/plugins/class-map.min.js; bun run terser src/plugins/sty-le.js --module --compress ecma=2022,passes=2 --mangle > dist/plugins/sty-le.min.js && bun run compress.js",
+      "format":"bun run prettier --arrow-parens=avoid --write src/index.js; bun run prettier --arrow-parens=avoid --write src/plugins/class-map.js; bun run prettier --arrow-parens=avoid --write src/plugins/sty-le.js; bun run prettier --arrow-parens=avoid --write src/plugins/part-ial.js",
+    "build": "bun run terser src/index.js --module --compress ecma=2022,passes=2 --mangle > dist/index.min.js; bun run terser src/plugins/class-map.js --module --compress ecma=2022,passes=2 --mangle > dist/plugins/class-map.min.js; bun run terser src/plugins/sty-le.js --module --compress ecma=2022,passes=2 --mangle > dist/plugins/sty-le.min.js; bun run terser src/plugins/part-ial.js --module --compress ecma=2022,passes=2 --mangle > dist/plugins/part-ial.min.js && bun run compress.js",
     "start": "bun --hot run ./server.js"
   },
   "keywords": [
