@@ -14,6 +14,6 @@ This is alpha-quality software and as such not ready for production.
 
 ## Counter Example
 
-No build needed, 28 lines of static HTML, 3.5 kB. Compares favourably to [Fresh framework by Deno](https://fresh.deno.dev/) and others! [Try it out!](https://cloudspeech.github.io/sig-nal/counter.html)
+No build needed, 28 lines of static HTML, 3.6 kB. Compares favourably to [Fresh framework by Deno](https://fresh.deno.dev/) and others! [Try it out!](https://cloudspeech.github.io/sig-nal/counter.html)
 
 <img width="741" alt="Screenshot 2024-05-23 at 16 14 47" src="https://github.com/cloudspeech/sig-nal/assets/850521/d061e264-1677-44d3-8a22-0e7f0f813041">
