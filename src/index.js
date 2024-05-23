@@ -140,19 +140,22 @@ class SigNal extends HTMLElement {
     return Promise.all(promises);
   };
 
-  static rerender = ({ signal, name, domNode }, initial = true) =>
-    signal.onChange(value => (domNode[name] = value), initial);
-
   static render =
     value =>
     ({ domNode, name }) =>
       (domNode[name] = typeof value === "function" ? value() : value);
 
+  static rerender = (parameters, initial = true) =>
+    parameters.signal.onChange(
+      value => SigNal.render(value)(parameters),
+      initial,
+    );
+
   connectedCallback() {
     let root = this[this.#GA("for") || "parentNode"];
     let scope = this.getRootNode();
     let isSignal = this.#GA("new");
-    let name = isSignal || this.#GA("ref");
+    let name = isSignal || this.#GA("ref") || crypto.randomUUID();
     let type = this.#GA("type");
     let { id, textContent } = this;
 
@@ -169,6 +172,13 @@ class SigNal extends HTMLElement {
 
     for (let attribute of root.getAttributeNames()) {
       this.#add(attribute, root);
+    }
+
+    if (this.#GA("hydrate") !== null) {
+      new Function(
+        `let{hydrate,render,rerender}=customElements.get('sig-nal');hydrate('${name}',${textContent})`,
+      )();
+      textContent = "";
     }
 
     if (!this.className) {
