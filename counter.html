@@ -12,16 +12,16 @@
       <h3>Interactive island</h3>
       <p>The server supplied the initial value <b>3.</b></p>
       <div>
-	<button @click="counter"><sig-nal ref="dec">-</sig-nal></button>
-	<div .textContent="counter"><sig-nal new="counter" type="number">3</sig-nal></div>
-	<button @click="counter"><sig-nal ref="inc">+</sig-nal></button>
-	<sig-nal hydrate>
-	  {
-	  counter: { ".textContent": rerender },
-	  inc: { "@click": ({ signal }) => signal.value++ },
-	  dec: { "@click": ({ signal }) => signal.value-- }
-	  }
-	</sig-nal>
+        <button @click="counter"><sig-nal ref="dec">-</sig-nal></button>
+        <div .textContent="counter"><sig-nal new="counter" type="number">3</sig-nal></div>
+        <button @click="counter"><sig-nal ref="inc">+</sig-nal></button>
+        <sig-nal hydrate>
+          {
+          counter: { ".textContent": rerender },
+          inc: { "@click": ({ signal }) => signal.value++ },
+          dec: { "@click": ({ signal }) => signal.value-- }
+          }
+        </sig-nal>
       </div>
     </template>
   </body>
