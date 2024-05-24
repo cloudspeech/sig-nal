@@ -59,10 +59,6 @@ th:not(:last-child):after {
 @keyframes gravity {
   to {
     transform: translateY(200px);
-    -moz-transform: translateY(200px);
-    -webkit-transform: translateY(200px);
-    -o-transform: translateY(200px);
-    -ms-transform: translateY(200px);
     opacity: 0;
   }
 }
@@ -70,21 +66,26 @@ th:not(:last-child):after {
 @keyframes position {
   0%, 19.9% {
     margin-top: 10%;
-    margin-left: 40%; }
+    margin-left: 40%;
+  }
 
   20%, 39.9% {
     margin-top: 40%;
-    margin-left: 30%; }
+    margin-left: 30%;
+  }
 
   40%, 59.9% {
     margin-top: 20%;
-    margin-left: 70%; }
+    margin-left: 70%;
+  }
 
   60%, 79.9% {
     margin-top: 30%;
-    margin-left: 20%; }
+    margin-left: 20%;
+  }
 
   80%, 99.9% {
     margin-top: 30%;
-    margin-left: 80%; }
+    margin-left: 80%;
+  }
 }
