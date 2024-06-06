@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en-US">
+  <head>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="description" content="sig-nal htmx examples demo"/>
+    <title>sig-nal | htmx examples demo</title>
+    <script type=module src="./src/plugins/part-ial.js"></script>
+    <script type=module src="./dist/index.min.js"></script>
+  </head>
+  <body>
+    <h1>htmx examples in &lt;sig-nal&gt;</h1>
+    
+    <ol>
+      <li>
+        <a href="https://htmx.org/"><h2>quick start</h2></a>
+        <htmx-example-1>
+          <template shadowrootmode="open">
+            <part-ial .src="post" options='{"method": "POST"}' mode="replaceWith">
+              <sig-nal ref="partial"></sig-nal>
+              <button @click="post" data-url="/clicked">
+                <sig-nal new="post"></sig-nal>
+                Click Me
+              </button>
+              <sig-nal hydrate>
+                {
+                partial: { ".src": rerender},
+                post: {"@click": ({signal, domNode:{dataset:{url}}}) => (signal.value = url)}
+                }
+              </sig-nal>
+            </part-ial>
+          </template>
+        </htmx-example-1>
+      </li>
+    </ol>
+  </body>
+</html>

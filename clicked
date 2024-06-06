@@ -1,0 +1,7 @@
+<details>
+	<summary>You clicked me</summary>
+	<p>You clicked the 'Click Me' button.</>
+	<p>This triggered a POST request to /clicked.</p>
+	<p>The response is this.</p>
+	<p>The button is gone.</p>
+</details>

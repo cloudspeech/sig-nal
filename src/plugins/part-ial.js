@@ -1,14 +1,13 @@
 (() => {
   // helper function
-  let domStream = targetElement => {
+  let domStream = (targetElement, domOp) => {
     // create a private top-level document
     let newDocument = document.implementation.createHTMLDocument();
-    // string-write empty <article> tag into it as a container
-    // (<article>s allow e.g. top-level <h1> again...)
+    // create a container <article>. <article>, so it can again host <h1>,
+    // and container, so one can stream multi-rooted HTML
     newDocument.write("<article>");
-    // now, using the DOM view of that document, get the container
     let container = newDocument.body.firstElementChild;
-    // ... and connect our 'real-DOM' target element to the container
+    // connect target and container
     targetElement.appendChild(container);
     // return a stream that will...
     return new WritableStream({
@@ -34,6 +33,7 @@
               attachShadowRoots(shadowRoot);
             });
         })(container);
+        if (domOp) targetElement[domOp](container.firstElementChild);
       },
       abort(reason) {
         // ... handle any stream errors by closing the private document first ...
@@ -67,12 +67,15 @@
         this.src &&
         (await // ... fetch it over the network, ...
         (
-          await fetch(this.src)
+          await fetch(
+            this.src,
+            JSON.parse(this.getAttribute("options") || "{}"),
+          )
         ).body // ... using the readableStream body of the fetch response, then ...
           // ... decoding the UTF-8 bytes of the streamed response into JavaScript strings ...
           .pipeThrough(new TextDecoderStream())
           // ... to be streamed into DOM via our helper function
-          .pipeTo(domStream(this)))
+          .pipeTo(domStream(this, this.getAttribute("mode"))))
       );
     }
   }
