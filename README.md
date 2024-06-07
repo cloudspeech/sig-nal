@@ -1,6 +1,6 @@
 # sig-nal
 
-&lt;sig-nal&gt; is a zero-dependencies Web Component for Server-Side Rendering with Signals (SSRS) in [**1009**](https://raw.githubusercontent.com/cloudspeech/sig-nal/main/dist/index.min.js) bytes (minified + Brotli-11-compressed).
+&lt;sig-nal&gt; is a zero-dependencies Web Component for Server-Side Rendering with Signals (SSRS) in [**1043**](https://raw.githubusercontent.com/cloudspeech/sig-nal/main/dist/index.min.js) bytes (minified + Brotli-11-compressed).
 
 ## Demo
 

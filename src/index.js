@@ -142,8 +142,14 @@ class SigNal extends HTMLElement {
 
   static render =
     value =>
-    ({ domNode, name }) =>
-      (domNode[name] = typeof value === "function" ? value() : value);
+    ({ domNode, name }) => {
+      value = typeof value === "function" ? value() : value;
+      if (/^dataset\.\S+/.test(name)) {
+        domNode.dataset[name.slice(8)] = value;
+      } else {
+        domNode[name] = value;
+      }
+    };
 
   static rerender = (parameters, initial = true) =>
     parameters.signal.onChange(
@@ -164,7 +170,7 @@ class SigNal extends HTMLElement {
 
     if (isSignal) {
       signalMap.use(scope)[name] = {
-        signal: new Signal(convert(textContent, type)),
+        signal: new Signal(convert(textContent || this.#GA("value"), type)),
         type,
         id,
       };
