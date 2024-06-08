@@ -5,6 +5,7 @@ let INIT = [
   (root, attributeName) => root.hasAttribute(attributeName),
   (root, attributeName) => root.getAttribute(attributeName),
   root => 1,
+  root => 0,
 ];
 
 class initWeakMap extends WeakMap {
@@ -72,10 +73,10 @@ class SigNal extends HTMLElement {
     let firstChar = attribute[0],
       attributeName = attribute.slice(1),
       name = this.#GA(attribute, root),
-      specialAttribute = ".?!@".indexOf(firstChar);
-    if (specialAttribute >= 0) {
-      let init = INIT[specialAttribute](root, attributeName);
-      rootMap.use(root)[attribute] = { init, name };
+      kind = ".?!@:".indexOf(firstChar);
+    if (kind >= 0) {
+      let init = INIT[kind](root, attributeName);
+      rootMap.use(root)[attribute] = { init, name, kind };
       queueMicrotask(() => root.removeAttribute(attribute));
     }
   };
@@ -96,14 +97,16 @@ class SigNal extends HTMLElement {
         scope.h = 1;
         let signals = signalMap.get(scope) || NONE;
         for (let name in descriptors) {
-          let domNode = scopeMap.get(scope)[name];
+          let domNodes = scopeMap.get(scope);
+          let domNode = domNodes[name];
           let mapping = rootMap.get(domNode);
           if (mapping) {
             let properties = descriptors[name];
             for (let property in properties) {
               let handler = properties[property];
               if (property in plugins) handler = plugins[property](handler);
-              let { name, init } = mapping[property.toLowerCase()] || NONE;
+              let { name, init, kind } =
+                mapping[property.toLowerCase()] || NONE;
               let { signal, type, id } = (name && signals[name]) || NONE;
               if (exportedSignals instanceof Object && id && signal)
                 exportedSignals[id] = signal;
@@ -115,7 +118,9 @@ class SigNal extends HTMLElement {
                   signal,
                   signals,
                   init,
+                  kind,
                   domNode,
+                  domNodes,
                   e,
                 });
               name &&
@@ -142,12 +147,12 @@ class SigNal extends HTMLElement {
 
   static render =
     value =>
-    ({ domNode, name }) => {
+    ({ domNode, name, kind }) => {
       value = typeof value === "function" ? value() : value;
       if (/^dataset\.\S+/.test(name)) {
         domNode.dataset[name.slice(8)] = value;
-      } else {
-        domNode[name] = value;
+      } else if (value !== null) {
+        kind === 4 ? domNode[name](value) : (domNode[name] = value);
       }
     };
 
