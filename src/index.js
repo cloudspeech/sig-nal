@@ -25,17 +25,17 @@ let convert = (value, type) => (type === "number" ? value | 0 : value);
 // reactive signals class
 class Signal {
   #value;
-  #changes = [];
+  #effects = [];
   #dirty = 0;
 
   constructor(newValue) {
     this.#value = newValue;
   }
 
-  #change = () =>
+  #changed = () =>
     ++this.#dirty === 1 &&
     queueMicrotask(() => {
-      this.#changes.map(fun => fun());
+      this.#effects.map(effect => effect());
       this.#dirty = 0;
     });
 
@@ -45,18 +45,24 @@ class Signal {
 
   set value(newValue) {
     this.#value = newValue;
-    this.#change();
+    this.#changed();
   }
 
-  onChange(doThis, initial) {
-    if (initial) doThis(this.#value);
-    this.#changes.push(() => doThis(this.#value));
+  onChange(
+    doThis,
+    initial,
+    index = this.#effects.length,
+    effect = () => doThis(this.#value),
+  ) {
+    if (initial) effect();
+    this.#effects[index] = effect;
+    return index;
   }
 
   when(callback, dependencies = []) {
-    let derivedSignal = new Signal(callback(this.#value));
-    this.onChange(value => (derivedSignal.value = callback(value)));
-    dependencies.map(dependency => dependency.onChange(this.#change));
+    let derivedSignal = new Signal();
+    this.onChange(value => (derivedSignal.value = callback(value)), true);
+    dependencies.map(dependency => dependency.onChange(this.#changed));
     return derivedSignal;
   }
 }
