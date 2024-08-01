@@ -170,7 +170,8 @@ class SigNal extends HTMLElement {
 
   connectedCallback() {
     let root = this[this.#GA("for") || "parentNode"];
-    let scope = this.getRootNode();
+    let scope = this.#GA("scope");
+    scope = scope ? this.closest(scope) : this.getRootNode();
     let isSignal = this.#GA("new");
     let name = isSignal || this.#GA("ref") || crypto.randomUUID();
     let type = this.#GA("type");
