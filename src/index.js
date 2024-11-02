@@ -18,9 +18,24 @@ let shadowMap = {};
 let scopeMap = new initWeakMap();
 let rootMap = new initWeakMap();
 let signalMap = new initWeakMap();
+let { body } = document;
+
+// e.g. ".textcontent" |-> "textContent", ...
+let specialAttributesToProperties = {};
 
 // helpers
 let convert = (value, type) => (type === "number" ? value | 0 : value);
+
+let getAllProperties = (e = body, props = []) =>
+  e.__proto__
+    ? getAllProperties(e.__proto__, props.concat(Object.getOwnPropertyNames(e)))
+    : [...new Set(props.concat(Object.getOwnPropertyNames(e)))];
+
+// initialize special-attributes |-> propertyNames mapping from <body> properties
+for (let property of getAllProperties()) {
+  let special = typeof body[property] === "function" ? ":" : ".";
+  specialAttributesToProperties[special + property.toLowerCase()] = property;
+}
 
 // reactive signals class
 class Signal {
@@ -103,6 +118,7 @@ class SigNal extends HTMLElement {
         scope.h = 1;
         let signals = signalMap.get(scope) || NONE;
         for (let name in descriptors) {
+          let descriptor = name;
           let domNodes = scopeMap.get(scope);
           let domNode = domNodes[name];
           let mapping = rootMap.get(domNode);
@@ -127,6 +143,8 @@ class SigNal extends HTMLElement {
                   kind,
                   domNode,
                   domNodes,
+                  scope,
+                  descriptor,
                   e,
                 });
               name &&
@@ -162,11 +180,42 @@ class SigNal extends HTMLElement {
       }
     };
 
-  static rerender = (parameters, initial = true) =>
-    parameters.signal.onChange(
-      value => SigNal.render(value)(parameters),
-      initial,
-    );
+  static renderWith =
+    callback =>
+    (parameters, initial = true) =>
+      parameters.signal.onChange(callback(parameters), initial);
+
+  static rerender = SigNal.renderWith(
+    parameters => value => SigNal.render(value)(parameters),
+  );
+
+  static index =
+    ({ scope, descriptor }) =>
+    model => {
+      for (let i = 0, n = model.length, item, node; i < n; i++) {
+        item = model[i];
+        if (item) {
+          node = scope.getElementById(`${descriptor}${i}`);
+          for (
+            let a = 0,
+              attributeNames = node.getAttributeNames(),
+              m = attributeNames.length,
+              j = 0,
+              isArray = Array.isArray(item),
+              attribute;
+            a < m;
+            a++
+          ) {
+            attribute = attributeNames[a];
+            if (attribute in specialAttributesToProperties) {
+              node[specialAttributesToProperties[attribute]] = isArray
+                ? item[j++]
+                : item;
+            }
+          }
+        }
+      }
+    };
 
   connectedCallback() {
     let root = this[this.#GA("for") || "parentNode"];
@@ -192,9 +241,22 @@ class SigNal extends HTMLElement {
       this.#add(attribute, root);
     }
 
+    if (this.#GA("index") !== null) {
+      let indexWalker = document.createTreeWalker(
+        root,
+        NodeFilter.SHOW_ELEMENT,
+      );
+      let i = 0,
+        current;
+      while (indexWalker.nextNode()) {
+        let current = indexWalker.currentNode;
+        if (current.id === name) current.id = `${name}${i++}`;
+      }
+    }
+
     if (this.#GA("hydrate") !== null) {
       new Function(
-        `let{hydrate,render,rerender}=customElements.get('sig-nal');hydrate('${name}',${textContent})`,
+        `let{hydrate,render,rerender,renderWith,index}=customElements.get('sig-nal');hydrate('${name}',${textContent})`,
       )();
       textContent = "";
     }
