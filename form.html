@@ -4,7 +4,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <meta name="description" content="sig-nal form demo" />
     <title>sig-nal | form demo</title>
-    <script type="module" src="./dist/index.min.js"></script>
+    <script type="module" src="./src/index.js"></script>
     <style>
       body {
         display: flex;
@@ -164,14 +164,35 @@
           border-top: var(--size) solid red;
           top: 60px;
         }
+
+        .back {
+          all: initial;
+          display: inline-block;
+          position: absolute;
+          top: 10px;
+          left: 20px;
+          color: #1da1f2;
+          font-size: 28px;
+          text-shadow: 1px 2px 3px #666;
+          cursor: pointer;
+          padding: 0 1rem;
+          z-index: 1;
+        }
+        .back[hidden] {
+          display: none;
+        }
       </style>
 
       <div class="container">
+        <button type="button" class="back" @click="back" hidden>
+          <sig-nal ref="back">←</sig-nal>
+        </button>
         <h1 class="title" .textContent="title">
           <sig-nal new="title">Contact Us</sig-nal>
         </h1>
         <form
           name="contact-me"
+          action="/my/end/point"
           method="dialog"
           autocomplete="on"
           class="inputs"
@@ -220,8 +241,9 @@
           >
           <label class="custom-select">
             <span>How did you hear about us?</span>
-            <select name="source">
-              <option selected>Web search</option>
+            <select name="source" required>
+              <option selected value="">Choose&hellip;</option>
+              <option>Web search</option>
               <option>Social Media</option>
               <option>Friends</option>
             </select>
@@ -251,15 +273,101 @@
         </form>
         <sig-nal ref="questionaire" for="previousElementSibling" hydrate>
           {contact: {"@submit": ({domNode:form, signals:{title},
-          domNodes:{questionaire}}) => { console.log(new FormData(form));
-          title.signal.value = 'Thank You!'; form.inert = true; form.hidden =
-          true; questionaire.inert = false; questionaire.hidden = false; }},
-          title: {".textContent": rerender}, questionaire: {"@submit":
-          ({domNode:form, signals:{title}}) => { console.log(new
-          FormData(form)); form.hidden = true; form.inert = true;
-          title.signal.value = 'We ❤️ you, 👋!'; }}}
+                                  domNodes:{questionaire,back}}) => {
+                                  title.signal.value = 'Thank You!';
+                                  form.inert = form.hidden = true;
+                                  questionaire.inert = questionaire.hidden = false;
+                                  back.removeAttribute('hidden');
+                                  }},
+
+          title: {".textContent": rerender},
+
+          questionaire: {"@submit": ({domNode:form, domNodes:{contact,back}, signals:{title}}) => {
+                                  title.signal.value = 'We ❤️ you, 👋!';
+                                  form.hidden = form.inert = true;
+                                  back.setAttribute('hidden', '');
+                                  submitForms([contact,form]);
+                                  }},
+              
+          back: {"@click": ({signals:{title}, domNodes:{contact,questionaire,back}}) => {
+                                  title.signal.value = 'Contact Us';
+                                  contact.inert = contact.hidden = false;
+                                  questionaire.inert = questionaire.hidden = true;
+                                  back.setAttribute('hidden', '');
+                                }}
+
+          }
         </sig-nal>
       </div>
     </template>
+    <script type="text/javascript" id="worker-script" src="">
+      (function(){function p(a){this.data="";this.a=0;if("string"===typeof a)this.data=a;else if(b.D(a)||b.L(a)){a=new Uint8Array(a);try{this.data=String.fromCharCode.apply(null,a)}catch(f){for(var v=0;v<a.length;++v)this.M(a[v])}}else if(a instanceof p||"object"===typeof a&&"string"===typeof a.data&&"number"===typeof a.a)this.data=a.data,this.a=a.a;this.v=0}function w(a,f,b){for(var d,c,h,m,g,k,e,r,n,l,t,q,u,p=b.length();64<=p;){for(g=0;16>g;++g)f[g]=b.getInt32();for(;64>g;++g)d=f[g-2],d=(d>>>17|d<<15)^
+        (d>>>19|d<<13)^d>>>10,c=f[g-15],c=(c>>>7|c<<25)^(c>>>18|c<<14)^c>>>3,f[g]=d+f[g-7]+c+f[g-16]|0;k=a.g;e=a.h;r=a.i;n=a.j;l=a.l;t=a.m;q=a.o;u=a.s;for(g=0;64>g;++g)d=(l>>>6|l<<26)^(l>>>11|l<<21)^(l>>>25|l<<7),h=q^l&(t^q),c=(k>>>2|k<<30)^(k>>>13|k<<19)^(k>>>22|k<<10),m=k&e|r&(k^e),d=u+d+h+x[g]+f[g],c+=m,u=q,q=t,t=l,l=n+d|0,n=r,r=e,e=k,k=d+c|0;a.g=a.g+k|0;a.h=a.h+e|0;a.i=a.i+r|0;a.j=a.j+n|0;a.l=a.l+l|0;a.m=a.m+t|0;a.o=a.o+q|0;a.s=a.s+u|0;p-=64}}var m,y,e,b=m=m||{};b.D=function(a){return"undefined"!==typeof ArrayBuffer&&
+        a instanceof ArrayBuffer};b.L=function(a){return a&&b.D(a.buffer)&&void 0!==a.byteLength};b.G=p;b.b=p;b.b.prototype.H=function(a){this.v+=a;4096<this.v&&(this.v=0)};b.b.prototype.length=function(){return this.data.length-this.a};b.b.prototype.M=function(a){this.u(String.fromCharCode(a))};b.b.prototype.u=function(a){this.data+=a;this.H(a.length)};b.b.prototype.c=function(a){this.u(String.fromCharCode(a>>24&255)+String.fromCharCode(a>>16&255)+String.fromCharCode(a>>8&255)+String.fromCharCode(a&255))};
+        b.b.prototype.getInt16=function(){var a=this.data.charCodeAt(this.a)<<8^this.data.charCodeAt(this.a+1);this.a+=2;return a};b.b.prototype.getInt32=function(){var a=this.data.charCodeAt(this.a)<<24^this.data.charCodeAt(this.a+1)<<16^this.data.charCodeAt(this.a+2)<<8^this.data.charCodeAt(this.a+3);this.a+=4;return a};b.b.prototype.B=function(){return this.data.slice(this.a)};b.b.prototype.compact=function(){0<this.a&&(this.data=this.data.slice(this.a),this.a=0);return this};b.b.prototype.clear=function(){this.data=
+        "";this.a=0;return this};b.b.prototype.truncate=function(a){a=Math.max(0,this.length()-a);this.data=this.data.substr(this.a,a);this.a=0;return this};b.b.prototype.N=function(){for(var a="",f=this.a;f<this.data.length;++f){var b=this.data.charCodeAt(f);16>b&&(a+="0");a+=b.toString(16)}return a};b.b.prototype.toString=function(){return b.I(this.B())};b.createBuffer=function(a,f){void 0!==a&&"utf8"===(f||"raw")&&(a=b.C(a));return new b.G(a)};b.J=function(){for(var a=String.fromCharCode(0),b=64,e="";0<
+        b;)b&1&&(e+=a),b>>>=1,0<b&&(a+=a);return e};b.C=function(a){return unescape(encodeURIComponent(a))};b.I=function(a){return decodeURIComponent(escape(a))};b.K=function(a){for(var b=0;b<a.length;b++)if(a.charCodeAt(b)>>>8)return!0;return!1};var z=y=y||{};e=e||{};e.A=e.A||{};e.F=e.A.F=z;z.create=function(){A||(n=String.fromCharCode(128),n+=m.J(),x=[1116352408,1899447441,3049323471,3921009573,961987163,1508970993,2453635748,2870763221,3624381080,310598401,607225278,1426881987,1925078388,2162078206,2614888103,
+        3248222580,3835390401,4022224774,264347078,604807628,770255983,1249150122,1555081692,1996064986,2554220882,2821834349,2952996808,3210313671,3336571891,3584528711,113926993,338241895,666307205,773529912,1294757372,1396182291,1695183700,1986661051,2177026350,2456956037,2730485921,2820302411,3259730800,3345764771,3516065817,3600352804,4094571909,275423344,430227734,506948616,659060556,883997877,958139571,1322822218,1537002063,1747873779,1955562222,2024104815,2227730452,2361852424,2428436474,2756734187,
+        3204031479,3329325298],A=!0);var a=null,b=m.createBuffer(),e=Array(64),d={algorithm:"sha256",O:64,P:32,w:0,f:[0,0],start:function(){d.w=0;d.f=[0,0];b=m.createBuffer();a={g:1779033703,h:3144134277,i:1013904242,j:2773480762,l:1359893119,m:2600822924,o:528734635,s:1541459225};return d}};d.start();d.update=function(c,h){"utf8"===h&&(c=m.C(c));d.w+=c.length;d.f[0]+=c.length/4294967296>>>0;d.f[1]+=c.length>>>0;b.u(c);w(a,e,b);(2048<b.a||0===b.length())&&b.compact();return d};d.digest=function(){var c=m.createBuffer();
+        c.u(b.B());c.u(n.substr(0,64-(d.f[1]+8&63)));c.c(d.f[0]<<3|d.f[0]>>>28);c.c(d.f[1]<<3);var h={g:a.g,h:a.h,i:a.i,j:a.j,l:a.l,m:a.m,o:a.o,s:a.s};w(h,e,c);c=m.createBuffer();c.c(h.g);c.c(h.h);c.c(h.i);c.c(h.j);c.c(h.l);c.c(h.m);c.c(h.o);c.c(h.s);return c};return d};var n=null,A=!1,x=null;synchronous_sha256=function(a){var f=e.F.create();f.update(a,b.K(a)?"utf8":void 0);return f.digest().N()}})();
+        
+        onmessage = function({data:{/* number of bits that need to be 0 */ difficulty, nonce, start, increment}}) {
+          const difficultyInHexDigits = Math.floor( difficulty / 4);
+          const remainder = difficulty - 4 * difficultyInHexDigits; // 0 - 3
+          const remainingBitsAsHexDigit = remainder > 0 ? 'ec8'.charAt(remainder - 1) : '';
+          const thisManyZeroBits = remainingBitsAsHexDigit + '0'.repeat(difficultyInHexDigits);
+          const message = `nonce=${nonce},difficulty=${difficulty},counter=`;
+          for(let counter = start; true; counter += increment) {
+              const hash = synchronous_sha256(message + counter);
+              if(hash.endsWith(thisManyZeroBits)) return postMessage({counter,hash});
+          }
+        };
+    </script>
+    <script>
+      function calculateProofOfWork(difficulty) {
+          // initialize
+          const startTime = performance.now();
+          const workers = [];
+          const serverSentNonce = (document.cookie.split(/\s*;\s*/).find(cookie => cookie.startsWith('nonce=')) || '').split('=')[1] || crypto.randomUUID();
+          // create worker blob URL
+          const workerScript = document.getElementById('worker-script').textContent;
+          const blob = new Blob([workerScript], {type: 'text/javascript'});
+          const workerURL = URL.createObjectURL(blob);
+          // create worker input, setting difficulty so that computation on a fast MacBook takes a couple seconds
+          const workerInput = (start, increment) => ({difficulty, nonce: serverSentNonce, start, increment});
+          const onMessage = ({data:{counter,hash}}) => {
+                  const result = `nonce=${serverSentNonce};difficulty=${difficulty};counter=${counter};hash=${hash};seconds=${(performance.now() - startTime)/ 1000}`;
+                  workers.forEach(worker => worker.terminate());
+                  calculateProofOfWork.headers = {'X-Proof-of-Work': result};
+                };
+          // start worker(s), each with their own auto-incrementing counter increment, so as to ensure parallelism in finding a solution
+          for (let i = 0, n = navigator.hardwareConcurrency; i < n; i++) {
+              const worker = workers[i] = new Worker(workerURL);
+              // install onmessage handler for worker - upon reception of proof-of-work result and terminate all workers
+              worker.onmessage = onMessage;
+              // send worker(s) a message with the worker input
+              worker.postMessage(workerInput(i, n));
+          }
+      };
+
+      function submitForms(parameters) {
+        const startTime = performance.now(),
+              formData = new FormData(),
+              log = [],
+              endpoint = parameters[0].getAttribute('action');
+
+        for(const thisForm of parameters) {
+            for(const [key,value] of (new FormData(thisForm)).entries()) {
+              formData.append(key, value);
+              log.push(`${key}=${value}`);
+            }
+        }
+
+        console.log('fetch(', endpoint, JSON.stringify({method:'POST', body: log, headers: calculateProofOfWork.headers}),')');
+      }
+
+      // start proof-of-work calculation upon initial page load - CPU-intensive stuff happens in background workers, main thread remains unblocked for user input!
+      calculateProofOfWork(22);
+    </script>
   </body>
 </html>
