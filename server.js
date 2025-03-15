@@ -1,6 +1,6 @@
 import serveStatic from 'serve-static-bun';
 
-const port = 8080;
+const port = 8000;
 
 Bun.serve({ fetch: serveStatic('.'), port });
 

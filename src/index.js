@@ -5,8 +5,9 @@ let INIT = [
   (root, attributeName) => root.hasAttribute(attributeName),
   (root, attributeName) => root.getAttribute(attributeName),
   root => 1,
-  root => 0,
+  root => 0
 ];
+let EXTRA_NON_BODY_PROPERTIES = ['selectedIndex'];
 
 class initWeakMap extends WeakMap {
   use = (key, initializer = {}) =>
@@ -24,7 +25,7 @@ let { body } = document;
 let specialAttributesToProperties = {};
 
 // helpers
-let convert = (value, type) => (type === "number" ? value | 0 : value);
+let convert = (value, type) => (type === 'number' ? value | 0 : value);
 
 let getAllProperties = (e = body, props = []) =>
   e.__proto__
@@ -32,8 +33,9 @@ let getAllProperties = (e = body, props = []) =>
     : [...new Set(props.concat(Object.getOwnPropertyNames(e)))];
 
 // initialize special-attributes |-> propertyNames mapping from <body> properties
-for (let property of getAllProperties()) {
-  let special = typeof body[property] === "function" ? ":" : ".";
+for (let property of [...getAllProperties(), ...EXTRA_NON_BODY_PROPERTIES]) {
+  let propertyType = typeof body[property];
+  let special = propertyType === 'function' ? ':' : '.';
   specialAttributesToProperties[special + property.toLowerCase()] = property;
 }
 
@@ -67,7 +69,7 @@ class Signal {
     doThis,
     initial,
     index = this.#effects.length,
-    effect = () => doThis(this.#value),
+    effect = () => doThis(this.#value)
   ) {
     if (initial) effect();
     this.#effects[index] = effect;
@@ -94,7 +96,7 @@ class SigNal extends HTMLElement {
     let firstChar = attribute[0],
       attributeName = attribute.slice(1),
       name = this.#GA(attribute, root),
-      kind = ".?!@:".indexOf(firstChar);
+      kind = '.?!@:'.indexOf(firstChar);
     if (kind >= 0) {
       let init = INIT[kind](root, attributeName);
       rootMap.use(root)[attribute] = { init, name, kind };
@@ -106,10 +108,10 @@ class SigNal extends HTMLElement {
 
   static hydrate = (selectors, descriptors, exportedSignals) => {
     let scopes =
-      typeof selectors === "string"
+      typeof selectors === 'string'
         ? shadowMap[selectors]
         : selectors.map(
-            selector => document.querySelector(selector).shadowRoot,
+            selector => document.querySelector(selector).shadowRoot
           );
     for (let scope of scopes) {
       // scope already h(ydrated)?
@@ -145,10 +147,10 @@ class SigNal extends HTMLElement {
                   domNodes,
                   scope,
                   descriptor,
-                  e,
+                  e
                 });
               name &&
-                (property.startsWith("@")
+                (property.startsWith('@')
                   ? domNode.addEventListener(attribute, callback)
                   : queueMicrotask(callback));
             }
@@ -172,7 +174,7 @@ class SigNal extends HTMLElement {
   static render =
     value =>
     ({ domNode, name, kind }) => {
-      value = typeof value === "function" ? value() : value;
+      value = typeof value === 'function' ? value() : value;
       if (/^dataset\.\S+/.test(name)) {
         domNode.dataset[name.slice(8)] = value;
       } else if (value !== null) {
@@ -181,21 +183,25 @@ class SigNal extends HTMLElement {
     };
 
   static renderWith =
-    callback =>
-    (parameters, initial = true) =>
+    (callback, initial = true) =>
+    parameters =>
       parameters.signal.onChange(callback(parameters), initial);
 
   static rerender = SigNal.renderWith(
-    parameters => value => SigNal.render(value)(parameters),
+    parameters => value => SigNal.render(value)(parameters)
   );
 
   static index =
     ({ scope, descriptor }) =>
     model => {
-      for (let i = 0, n = model.length, item, node; i < n; i++) {
+      for (let i = 0, n = model.length, item, node, selector; i < n; i++) {
         item = model[i];
-        if (item) {
-          node = scope.getElementById(`${descriptor}${i}`);
+        if (item !== undefined) {
+          selector = descriptor + i;
+          node =
+            scope instanceof DocumentFragment
+              ? scope.getElementById(selector)
+              : scope.querySelector('#' + selector);
           for (
             let a = 0,
               attributeNames = node.getAttributeNames(),
@@ -218,12 +224,12 @@ class SigNal extends HTMLElement {
     };
 
   connectedCallback() {
-    let root = this[this.#GA("for") || "parentNode"];
-    let scope = this.#GA("scope");
+    let root = this[this.#GA('for') || 'parentNode'];
+    let scope = this.#GA('scope');
     scope = scope ? this.closest(scope) : this.getRootNode();
-    let isSignal = this.#GA("new");
-    let name = isSignal || this.#GA("ref") || crypto.randomUUID();
-    let type = this.#GA("type");
+    let isSignal = this.#GA('new');
+    let name = isSignal || this.#GA('ref') || crypto.randomUUID();
+    let type = this.#GA('type');
     let { id, textContent } = this;
 
     (shadowMap[name] = shadowMap[name] || []).push(scope);
@@ -231,9 +237,9 @@ class SigNal extends HTMLElement {
 
     if (isSignal) {
       signalMap.use(scope)[name] = {
-        signal: new Signal(convert(textContent || this.#GA("value"), type)),
+        signal: new Signal(convert(textContent || this.#GA('value'), type)),
         type,
-        id,
+        id
       };
     }
 
@@ -241,10 +247,10 @@ class SigNal extends HTMLElement {
       this.#add(attribute, root);
     }
 
-    if (this.#GA("index") !== null) {
+    if (this.#GA('index') !== null) {
       let indexWalker = document.createTreeWalker(
         root,
-        NodeFilter.SHOW_ELEMENT,
+        NodeFilter.SHOW_ELEMENT
       );
       let i = 0,
         current;
@@ -254,17 +260,18 @@ class SigNal extends HTMLElement {
       }
     }
 
-    if (this.#GA("hydrate") !== null) {
+    if (this.#GA('hydrate') !== null) {
       new Function(
-        `let{hydrate,render,rerender,renderWith,index}=customElements.get('sig-nal');hydrate('${name}',${textContent})`,
+        `let{hydrate,render,rerender,renderWith,index}=customElements.get('sig-nal');hydrate('${name}',${textContent})`
       )();
-      textContent = "";
+      textContent = '';
+      root.dispatchEvent(new Event('init'));
     }
 
     if (!this.className) {
       this.replaceWith(textContent);
     }
-  }
-}
+  } // end connectedCallback
+} // end class SigNal
 
-customElements.define("sig-nal", SigNal);
+customElements.define('sig-nal', SigNal);
