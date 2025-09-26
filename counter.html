@@ -1,26 +1,29 @@
 <!doctype html>
 <html lang="en-US">
   <head>
-    <meta name="viewport" content="width=device-width,initial-scale=1"/>
-    <meta name="description" content="sig-nal counter demo"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="description" content="sig-nal counter demo" />
     <title>sig-nal | counter demo</title>
-    <script type=module src="./dist/index.min.js"></script>
+    <script type="module" src="./src/index.js"></script>
   </head>
   <body>
     <template shadowrootmode="open">
-      <link rel="stylesheet" href="./counterdemo.css"/>
+      <link rel="stylesheet" href="./counterdemo.css" />
       <h3>Interactive island</h3>
       <p>The server supplied the initial value <b>3.</b></p>
       <div>
-        <button @click="counter"><sig-nal ref="dec">-</sig-nal></button>
-        <div .textContent="counter"><sig-nal new="counter" type="number">3</sig-nal></div>
-        <button @click="counter"><sig-nal ref="inc">+</sig-nal></button>
-        <sig-nal hydrate>
-          {
-          counter: { ".textContent": rerender },
-          inc: { "@click": ({ signal }) => signal.value++ },
-          dec: { "@click": ({ signal }) => signal.value-- }
-          }
+        <button id="dec" @click="counter">-</button>
+        <span id="value" .textContent="counter">3</span>
+        <button id="inc" @click="counter">+</button>
+        <sig-nal
+          new="counter"
+          type="number"
+          default=".textContent#value"
+          hydrate>
+          { value: { ".textContent": rerender },
+	    dec: { "@click": ({signal}) => signal.value-- },
+	    inc: { "@click": ({signal}) => signal.value++ }
+	  }
         </sig-nal>
       </div>
     </template>
