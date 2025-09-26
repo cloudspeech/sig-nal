@@ -40,7 +40,7 @@ let context = (self, id, specialAttribute, kind, name) => {
   // assembled above. A concrete handler function instance is
   // usable as an e(vent) handler.
   return handler => e =>
-    handler({ getById, ctx, name, signal, signals, domNode, kind, e });
+    handler({ getById, ctx, name, signal, signals, id, kind, e });
 };
 
 // <sig-nal> class
@@ -121,8 +121,8 @@ class SigNal extends HTMLElement {
   // default DOM renderer: given a context, produce a signal.effect callback that
   // knows how to render familiar DOM property/method updates
   static render =
-    ({ signal, domNode, name, kind }) =>
-    (value = signal.value) => {
+    ({ signal, getById, id, name, kind }) =>
+    (value = signal.value, domNode = getById(id)) => {
       value = typeof value === 'function' ? value() : value;
       if (/^dataset\.\S+/.test(name)) {
         domNode.dataset[name.slice(8)] = value;
