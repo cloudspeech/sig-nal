@@ -118,6 +118,25 @@ class SigNal extends HTMLElement {
 
   // convenience methods to be used in hydration descriptions:
 
+  static index =
+    (attrs, props = attrs.map(attr => attr.slice(1))) =>
+    ({ getById, ctx: { name }, signal }) =>
+    (model = signal.value) => {
+      for (let i = 0, n = model.length, item, node, isArray, j; i < n; i++) {
+        item = model[i];
+        isArray = Array.isArray(item);
+        if (item === undefined) continue;
+        node = getById(name + i);
+        j = 0;
+        for (let attr of attrs) {
+          if (node.hasAttribute(attr)) {
+            node[props[j]] = isArray ? item[j] : item;
+          }
+          j++;
+        }
+      }
+    };
+
   // default DOM renderer: given a context, produce a signal.effect callback that
   // knows how to render familiar DOM property/method updates
   static render =
@@ -154,7 +173,7 @@ class SigNal extends HTMLElement {
     let isSignal = this.#GA('new');
     let name = isSignal || this.#GA('ref') || crypto.randomUUID();
     let type = this.#GA('type');
-    let [defaultAttribute, defaultId] = this.#GA('default')?.split('#');
+    let [defaultAttribute, defaultId] = (this.#GA('default') || '').split('#');
 
     let { id, textContent } = this;
 
@@ -162,7 +181,7 @@ class SigNal extends HTMLElement {
     // we're inside ShadowDOM or not
     this.getById = isShadowDOM
       ? id => root.querySelector('#' + id)
-      : id => root.getElementById(id); // fastest
+      : id => document.getElementById(id); // fastest
     // bundle up attributes of this instance (some derived,
     // some directly cached), to later serve as callback context
     this.ctx = { root, scope, name, type, id, description: textContent };
@@ -180,7 +199,7 @@ class SigNal extends HTMLElement {
 
     // are we asked to automatically enrich the DOM tree under
     // our root with 'id' values if they are missing?
-    if (this.#GA('index')) {
+    if (this.#GA('index') !== null) {
       // yes, set up
       let indexWalker = document.createTreeWalker(
         root,
@@ -195,9 +214,9 @@ class SigNal extends HTMLElement {
         let node = indexWalker.currentNode;
         // (skipping our own <sig-nal> node, of course)
         if (node === this) continue;
-        // if not decorated with an (assumed unique) id value already,
+        // if marked as needing an index,
         // assign a *computed* unique 'id' value scoped to the <sig-nal new=name>
-        node.id = node.id || `${name}${i++}`;
+        if (node.id === name) node.id = `${name}${i++}`;
       }
     }
 
@@ -205,7 +224,7 @@ class SigNal extends HTMLElement {
     if (this.#GA('hydrate') !== null) {
       // yes, evaluate it
       new Function(
-        `let{hydrate,render,rerender,renderWith}=customElements.get('sig-nal');return hydrate(${textContent})`
+        `let{hydrate,render,rerender,renderWith,index}=customElements.get('sig-nal');return hydrate(${textContent})`
       )()(this);
       // remove the text child node
       textContent = '';

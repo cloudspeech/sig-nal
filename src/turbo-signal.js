@@ -16,16 +16,13 @@ let _update = registeredComputationIndex => {
 };
 
 let _value = (index, newValue) => {
-  let oldValue = values[index];
-  if (oldValue !== newValue) {
-    values[index] = newValue;
-    for (let thisEffect of effects[index] || EMPTY_ARRAY) {
-      let type = typeof thisEffect;
-      if (type === 'function') {
-        thisEffect();
-      } else if (type === 'number') {
-        _update(thisEffect);
-      }
+  values[index] = newValue;
+  for (let thisEffect of effects[index] || EMPTY_ARRAY) {
+    let type = typeof thisEffect;
+    if (type === 'function') {
+      thisEffect();
+    } else if (type === 'number') {
+      _update(thisEffect);
     }
   }
   return newValue;
