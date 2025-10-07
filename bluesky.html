@@ -52,9 +52,10 @@
           WebSocket('wss://jetstream2.us-west.bsky.network/subscribe?wantedCollections=app.bsky.feed.post');
           ws.onmessage = event => { let {kind, commit} = JSON.parse(event.data);
           if (kind !== 'commit' || commit.operation !== 'create') return; let
-          message = commit.record.text.replaceAll(/\n/g, ' '); let last10 =
-          signal.value; last10.push(message); last10.shift(); signal.value =
-          last10; }; }, ".firstElementChild":
+          message = commit.record.text.replaceAll(/\n/g, ' '); let filter =
+          location.search.slice(1); if (filter && !message.includes(filter))
+          return; let last10 = signal.value; last10.push(message);
+          last10.shift(); signal.value = last10; }; }, ".firstElementChild":
           renderWith(index(['.textContent']),false) }}
         </sig-nal>
       </div>
