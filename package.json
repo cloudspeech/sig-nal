@@ -2,12 +2,14 @@
   "name": "sig-nal",
   "version": "0.0.1",
   "description": "sig-nal is a micro framework for web apps based on plain or computed signals + lit-html template notation.",
+  "type": "module",
   "main": "dist/index.min.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-      "format":"bun run prettier --arrow-parens=avoid --write src/index.js; bun run prettier --arrow-parens=avoid --write src/plugins/class-map.js; bun run prettier --arrow-parens=avoid --write src/plugins/sty-le.js; bun run prettier --arrow-parens=avoid --write src/plugins/part-ial.js",
+    "format": "bun run prettier --arrow-parens=avoid --write src/index.js; bun run prettier --arrow-parens=avoid --write src/plugins/class-map.js; bun run prettier --arrow-parens=avoid --write src/plugins/sty-le.js; bun run prettier --arrow-parens=avoid --write src/plugins/part-ial.js",
     "build": "bun run terser src/index.js --module --compress ecma=2022,passes=2 --mangle > dist/index.min.js; bun run terser src/plugins/class-map.js --module --compress ecma=2022,passes=2 --mangle > dist/plugins/class-map.min.js; bun run terser src/plugins/sty-le.js --module --compress ecma=2022,passes=2 --mangle > dist/plugins/sty-le.min.js; bun run terser src/plugins/part-ial.js --module --compress ecma=2022,passes=2 --mangle > dist/plugins/part-ial.min.js && bun run compress.js",
-    "start": "bun --hot run ./server.js"
+    "start": "bun --hot run ./server.js",
+    "rollup": "rollup -c && bun run compress.js"
   },
   "keywords": [
     "framework",
@@ -24,5 +26,9 @@
     "prettier": "^3.0.3",
     "serve-static-bun": "^0.5.3",
     "terser": "^5.19.4"
+  },
+  "dependencies": {
+    "@rollup/plugin-terser": "^0.4.4",
+    "rollup": "^4.52.3"
   }
 }
