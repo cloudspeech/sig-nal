@@ -4,7 +4,15 @@
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <meta name="description" content="sig-nal dbmonster demo" />
     <title>sig-nal | dbmonster demo</title>
-    <script type="module" src="./src/index.js"></script>
+    <script>
+      const files = ['index'];
+      const isProduction = location.search.includes('prod');
+      for (let file of files) {
+        import(
+          `./${isProduction ? 'dist' : 'src'}/${file}${isProduction ? '.min.js' : '.js'}`
+        );
+      }
+    </script>
     <style>
       body {
         color: #333;
@@ -5051,7 +5059,7 @@
           </tr>
         </tbody>
       </table>
-      <sig-nal new="db" index hydrate>
+      <sig-nal new="db" scope="#app" index hydrate>
         { "table": {".firstElementChild":
         renderWith(index(['.className','.textContent']),false), "@update":
         ({signal, e:{detail:model}}) => (signal.value = model) } }
