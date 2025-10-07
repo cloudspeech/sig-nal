@@ -21,17 +21,15 @@ let convert = (stringValue, type) =>
   type === 'number' ? stringValue | 0 : stringValue;
 
 // construct a a context for handlers in hydration descriptions
-let context = (self, id, specialAttribute, kind, name) => {
+let context = (self, id, specialAttribute, kind, name, domNode) => {
   // self is a sig-nal *instance*:
   // extract interesting public methods from it
   let { getById, ctx } = self;
-  // given an 'id' value, get its DOM node
-  let domNode = getById(id);
   // get the signal name from the value of the special attribute
   // (e.g. 'counter' from .textContent="counter")
   let signalName = domNode.getAttribute(specialAttribute);
   // get the map of all signals registered in the present scope
-  let signals = signalMap.get(ctx.scope) || NONE;
+  let signals = signalMap.get(ctx.scope);
   // get the particular signal that the special attribute references
   let signal = signals[signalName];
   // now that we have dealt with the special attribute, schedule its removal
@@ -84,12 +82,16 @@ class SigNal extends HTMLElement {
         // skip non-special attributes (must be an error in the description)
         if (kind < 0) continue;
         // construct a callback function by passing the handler to a context
+        // given an 'id' value, get its DOM node
+        let { getById, root } = self;
+        let domNode = id ? getById(id) : root;
         let callback = context(
           self,
           id,
           specialAttribute,
           kind,
-          attributeName
+          attributeName,
+          domNode
         )(handler);
         // if not the event listener kind
         if (kind) {
@@ -97,7 +99,7 @@ class SigNal extends HTMLElement {
           callback();
         } else {
           // register event listener using callback
-          self.getById(id).addEventListener(attributeName, callback, options);
+          domNode.addEventListener(attributeName, callback, options);
         }
       }
     }
@@ -166,7 +168,7 @@ class SigNal extends HTMLElement {
     super();
     // cache lots of attribute values determining the
     // behaviour of this <sig-nal> instance
-    let root = this[this.#GA('for') || 'parentNode'];
+    let root = (this.root = this[this.#GA('for') || 'parentNode']);
     let scope = this.#GA('scope');
     scope = scope ? this.closest(scope) : this.getRootNode();
     let isShadowDOM = scope instanceof ShadowRoot;
@@ -203,7 +205,7 @@ class SigNal extends HTMLElement {
       // yes, set up
       let indexWalker = document.createTreeWalker(
         root,
-        NodeFilter.SHOW_ELEMENT
+        1 // NodeFilter.SHOW_ELEMENT
       );
       let i = 0,
         node,
@@ -216,7 +218,7 @@ class SigNal extends HTMLElement {
         if (node === this) continue;
         // if marked as needing an index,
         // assign a *computed* unique 'id' value scoped to the <sig-nal new=name>
-        if (node.id === name) node.id = `${name}${i++}`;
+        if (node.id === name) node.id = name + i++;
       }
     }
 
