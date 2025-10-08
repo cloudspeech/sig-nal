@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en-US">
+  <head>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="description" content="sig-nal counter demo" />
+    <title>sig-nal | counter demo</title>
+    <script type="module" src="./src/index.js"></script>
+  </head>
+  <body>
+    <template shadowrootmode="open">
+      <link rel="stylesheet" href="./counterdemo.css" />
+      <h3>Interactive island</h3>
+      <p>The server supplied the initial value <b>3.</b></p>
+      <p>
+        <span class="even">Even</span>&nbsp;and&nbsp;<span class="odd">odd</span
+        >&nbsp;values are distinguished.
+      </p>
+      <div>
+        <button id="dec" @click="counter">-</button>
+        <span id="value" .textContent="counter" .classMap="counter">3</span>
+        <button id="inc" @click="counter">+</button>
+        <!-- prettier-ignore -->
+        <sig-nal
+          new="counter"
+          type="number"
+          default=".textContent#value"
+          hydrate>
+          { value: { ".textContent": rerender,
+                     ".classMap": plugin(({signal}) => ({even: computed(() => !(signal.value & 1)), odd: computed(() => signal.value & 1)}))
+                   },
+            dec:   { "@click": ({signal}) => signal.value-- },
+            inc:   { "@click": ({signal}) => signal.value++ }
+          }
+        </sig-nal>
+      </div>
+    </template>
+  </body>
+</html>

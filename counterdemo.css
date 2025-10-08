@@ -1,24 +1,32 @@
 :host {
-    height:100vh;
-    background-image:linear-gradient(to bottom right,#bfdbfe,#86efac,#fef08a)
+  height: 100vh;
+  background-image: linear-gradient(to bottom right, #bfdbfe, #86efac, #fef08a);
 }
 
-*:not(style,span) {
-    display:flex;
-    font-family:sans-serif;
-    font-size:x-large;
-    padding:1rem;
-    justify-content:center;
-    align-items: center
+*:not(style, span) {
+  display: flex;
+  font-family: sans-serif;
+  font-size: x-large;
+  padding: 1rem;
+  justify-content: center;
+  align-items: center;
 }
 
 button {
-    border-radius:50%;
-    border:2px solid #000;
-    padding:1rem 1.5rem;
-    cursor:pointer
+  border-radius: 50%;
+  border: 2px solid #000;
+  padding: 1rem 1.5rem;
+  cursor: pointer;
 }
 
 div > div {
-    font-weight:bold
+  font-weight: bold;
+}
+
+.odd {
+  color: green;
+}
+
+.even {
+  color: red;
 }

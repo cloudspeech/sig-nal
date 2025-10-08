@@ -10,9 +10,16 @@ class initWeakMap extends WeakMap {
     this.get(key) || this.set(key, initializer).get(key);
 }
 
-let signalMap = new initWeakMap(),
-  plugins = {},
-  loaded = {};
+let signalMap = new initWeakMap();
+
+let plugins = new Proxy(
+  {},
+  {
+    async get(target, prop) {
+      return (await import('./plugins/' + prop + '.js')).default;
+    }
+  }
+);
 
 // helpers
 
@@ -38,7 +45,7 @@ let context = (self, id, specialAttribute, kind, name, domNode) => {
   // assembled above. A concrete handler function instance is
   // usable as an e(vent) handler.
   return handler => e =>
-    handler({ getById, ctx, name, signal, signals, id, kind, e });
+    handler({ getById, ctx, name, signal, signals, id, kind, e, plugins });
 };
 
 // <sig-nal> class
@@ -46,16 +53,19 @@ class SigNal extends HTMLElement {
   // private class fields
   #GA = name => this.getAttribute(name); // shorthand method
 
-  // public class fields
-  getById = null; // will contain a function to get a DOM node by 'id' value
-
-  ctx = null; // will contain a c(on)t(e)x(t)
-
   // static public class fields
 
   // re-export signal creator function
   static signal = signal; // e.g. signal(3)
   static computed = computed; // e.g. computed(() => signal.value % 2)
+
+  // plugin-call helper
+
+  // e.g. ".classMap": plugin(({signal}) => ({even: computed(() => !(signal.value & 1)), odd: computed(() => signal.value & 1) }))
+  static plugin = parametersToArgsFunction => parameters =>
+    parameters.plugins[parameters.name].then(callback =>
+      callback(parameters)(parametersToArgsFunction(parameters))
+    );
 
   // hydrate the DOM tree under root from a hydration 'description',
   // using the named sig-nal instance 'self'
@@ -105,26 +115,17 @@ class SigNal extends HTMLElement {
     }
   };
 
-  // plugin-extension-mechanis methods
-
-  static plugin = (name, code) =>
-    (plugins[name] = code) && loaded[name] && loaded[name]();
-
-  static usable = (arrayOfPluginNames, promises = []) => {
-    for (let name of arrayOfPluginNames) {
-      if (!plugins[name])
-        promises.push(new Promise(resolve => (loaded[name] = resolve)));
-    }
-    return Promise.all(promises);
-  };
-
   // convenience methods to be used in hydration descriptions:
 
   static index =
     (attrs, props = attrs.map(attr => attr.slice(1))) =>
     ({ getById, ctx: { name }, signal }) =>
     (model = signal.value) => {
-      for (let i = 0, n = model.length, item, node, isArray, j; i < n; i++) {
+      for (
+        let i = 0, n = model?.length | 0, item, node, isArray, j;
+        i < n;
+        i++
+      ) {
         item = model[i];
         isArray = Array.isArray(item);
         if (item === undefined) continue;
@@ -226,7 +227,7 @@ class SigNal extends HTMLElement {
     if (this.#GA('hydrate') !== null) {
       // yes, evaluate it
       new Function(
-        `let{hydrate,render,rerender,renderWith,index}=customElements.get('sig-nal');return hydrate(${textContent})`
+        `let{hydrate,render,rerender,renderWith,index,plugin,computed}=customElements.get('sig-nal');return hydrate(${textContent})`
       )()(this);
       // remove the text child node
       textContent = '';
