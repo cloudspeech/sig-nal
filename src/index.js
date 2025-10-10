@@ -128,8 +128,8 @@ class SigNal extends HTMLElement {
       ) {
         item = model[i];
         isArray = Array.isArray(item);
-        if (item === undefined) continue;
         node = getById(name + i);
+        if (item === undefined || !node) continue;
         j = 0;
         for (let attr of attrs) {
           if (node.hasAttribute(attr)) {
