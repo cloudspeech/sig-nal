@@ -1,5 +1,5 @@
 :host {
-  height: 100vh;
+  height: 100%;
   background-image: linear-gradient(to bottom right, #bfdbfe, #86efac, #fef08a);
 }
 
@@ -23,10 +23,15 @@ div > div {
   font-weight: bold;
 }
 
+#value {
+  font-size: 2.75rem;
+  padding: 0 1rem;
+}
+
 .odd {
-  color: green;
+  color: red;
 }
 
 .even {
-  color: red;
+  color: green;
 }

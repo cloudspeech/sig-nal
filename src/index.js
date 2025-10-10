@@ -38,7 +38,7 @@ let context = (self, id, specialAttribute, kind, name, domNode) => {
   // get the map of all signals registered in the present scope
   let signals = signalMap.get(ctx.scope);
   // get the particular signal that the special attribute references
-  let signal = signals[signalName];
+  let signal = signals && signals[signalName];
   // now that we have dealt with the special attribute, schedule its removal
   queueMicrotask(() => domNode.removeAttribute(specialAttribute));
   // return a handler function factory that gets the context info

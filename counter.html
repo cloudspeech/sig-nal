@@ -15,11 +15,7 @@
         <button id="dec" @click="counter">-</button>
         <span id="value" .textContent="counter">3</span>
         <button id="inc" @click="counter">+</button>
-        <sig-nal
-          new="counter"
-          type="number"
-          default=".textContent#value"
-          hydrate>
+        <sig-nal new="counter" type="number" default=".textContent#value" hydrate>
           { value: { ".textContent": rerender },
 	    dec: { "@click": ({signal}) => signal.value-- },
 	    inc: { "@click": ({signal}) => signal.value++ }
