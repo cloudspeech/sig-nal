@@ -17,7 +17,7 @@
         // no cache match: prepare a new style sheet
         styleSheet = new CSSStyleSheet();
         // determine style content
-        let src = this.getAttribute("src");
+        let src = this.getAttribute('src');
         // promise to yield a style sheet
         let promise = new Promise(async resolve => {
           let content = src
@@ -41,5 +41,5 @@
     }
   }
   // register the newly defined custom element
-  customElements.define("sty-le", StyLe);
+  customElements.define('sty-le', StyLe);
 })();

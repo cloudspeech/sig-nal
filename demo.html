@@ -1,183 +1,220 @@
 <!doctype html>
-<html lang="en-US">
+<html lang="en-US" style="height:240vh">
   <head>
-    <meta charset="utf-8"/>
-    <meta name="viewport" content="width=device-width,initial-scale=1"/>
-    <meta name="description" content="Demo of sig-nal. Sig-nal is a tiny web component for server-side rendering with signals."/>
-    <meta name="theme-color" content="#ffffff">
-    <link rel="apple-touch-icon" sizes="152x152" href="/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    <link rel="manifest" href="manifest.json">
-    <link rel="icon" href="favicon.ico"/>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta
+      name="description"
+      content="Demo of sig-nal. Sig-nal is a tiny web component for server-side rendering with signals." />
+    <meta name="theme-color" content="#ffffff" />
+    <link rel="apple-touch-icon" sizes="152x152" href="/apple-touch-icon.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="manifest" href="manifest.json" />
+    <link rel="icon" href="favicon.ico" />
+    <link rel="preload" href="./counterdemo.css" as="style" />
     <title>Demo | sig-nal</title>
-    <link rel="preload" href="./accordion.css" as="style">
     <style>
-body, div {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    font-family: sans-serif;
-}
+      body,
+      div {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        font-family: sans-serif;
+      }
 
-body {
-    background-repeat: no-repeat;
-    background-image: radial-gradient( circle 2000vh at 9% 80.3%,  rgba(55,60,245,1) 0%, rgba(234,161,15,0.90) 100.2% );
-    color: #fff;
-}
+      body {
+        background-repeat: no-repeat;
+        background-image: radial-gradient(
+          circle 300vh at 9% 80.3%,
+          rgba(55, 60, 245, 1) 0%,
+          rgba(234, 161, 15, 0.9) 100.2%
+        );
+        color: #333;
+        height: 150vh;
+      }
 
-details {
-    cursor: pointer;
-    padding: 1rem 3rem;
-}
-</style>
+      details {
+        cursor: pointer;
+        padding: 1rem 3rem;
+        color: #fff;
+	max-width: 26rem;
+      }
+
+      .featured {
+        box-shadow: 1px 2px 3px #000;
+        margin: 1rem;
+	width: 320px;
+	height: 500px;
+      }
+
+      digital-clock {
+        display: block;
+        margin: 0 auto;
+      }
+    </style>
     <script>
-      const files = ['index', 'plugins/class-map'];
+      const files = ['index', 'plugins/part-ial'];
       const isProduction = location.search.includes('prod');
-      for(let file of files) {
-          import(`./${isProduction ? 'dist' : 'src'}/${file}${isProduction ? '.min.js' : '.js'}`);
+      for (let file of files) {
+        import(
+          `./${isProduction ? 'dist' : 'src'}/${file}.js`
+        );
       }
     </script>
-    <!-- inlined script src="dist/plugins/sty-le.js" -->
-    <script>(()=>{let e=new Map;class t extends HTMLElement{async connectedCallback(){let{id:t}=this,s=e.get(t);if(!s){s=new CSSStyleSheet;let i=this.getAttribute("src"),n=new Promise((async e=>{let t=i?await(await fetch(i)).text():this.previousElementSibling.textContent;s.replaceSync(t),e(s)}));e.set(t,n)}s&&this.getRootNode().adoptedStyleSheets.push(await s),this.remove()}}customElements.define("sty-le",t)})();</script>
-    <!-- inlined script src="dist/plugins/part-ial.js" -->
-    <script>(()=>{class e extends HTMLElement{#e;get src(){return this.#e||(this.#e=this.getAttribute("src"))}set src(e){this.#e=e,this.connectedCallback()}async connectedCallback(){return this.src&&await(await fetch(this.src,JSON.parse(this.getAttribute("options")||"{}"))).body.pipeThrough(new TextDecoderStream).pipeTo(((e,t)=>{let r=document.implementation.createHTMLDocument();r.write("<article>");let i=r.body.firstElementChild;return e.appendChild(i),new WritableStream({write(e){r.write(e)},close(){r.close(),function e(t){t.querySelectorAll("template[shadowrootmode]").forEach((t=>{let r=t.parentNode.attachShadow({mode:"open"});r.appendChild(t.content),t.remove(),e(r)}))}(i),t&&e[t](i.firstElementChild)},abort(e){r.close(),console.error(`part-ial aborted: ${e}`)}})})(this,this.getAttribute("mode")))}}customElements.define("part-ial",e)})();</script>
   </head>
   <body>
-    <div id="counter1">
+    <div class="featured">
       <template shadowrootmode="open">
-	<sty-le id="counter-styles" src="./counter.css"></sty-le>
-	<h1 class="heading heading-1" .classMap="counter">
-	  <sig-nal ref="h1"></sig-nal>
-	  <a href="https://github.com/cloudspeech/sig-nal" target="_blank" !title="counter" .textContent="title"><sig-nal ref="title"></sig-nal></a>
-	</h1>
-	<div class="container">
-	  <button @click="counter">
-	    <sig-nal ref="inc">+</sig-nal>
-	  </button>
-	  <span .textContent="counter">
-	    <sig-nal new="counter" type="number">0</sig-nal>
-          </span>
-	  <button @click="counter">
-	    <sig-nal ref="dec">-</sig-nal>
-	  </button>
-	</div>
+        <link rel="stylesheet" href="./counterdemo.css" />
+        <h3>Interactive island</h3>
+        <p>The server supplied the initial value <b>3.</b></p>
+        <div>
+          <button id="dec" @click="counter">-</button>
+          <span id="value" .textContent="counter">3</span>
+          <button id="inc" @click="counter">+</button>
+	  <!-- prettier-ignore -->
+          <sig-nal
+            new="counter"
+            type="number"
+            default=".textContent#value"
+            hydrate hidden>
+            { value: { ".textContent": rerender },
+	        dec: { "@click": ({signal}) => signal.value-- },
+		inc: { "@click": ({signal}) => signal.value++ }
+            }
+          </sig-nal>
+        </div>
+      </template>
+    </div>
+    <digital-clock>
+      <template shadowrootmode="open">
+        <style>
+          * {
+            font-family: sans-serif;
+            font-weight: 700;
+            font-size: 4vw;
+          }
+
+          table {
+            background: #555;
+            color: #fff;
+            padding: 0 5px;
+            border-radius: 5px;
+          }
+
+          td {
+            min-width: 1rem;
+          }
+
+          .year {
+            min-width: 2.2rem;
+          }
+
+          .weekday:after {
+            content: ',';
+          }
+          .day:after {
+            content: '.';
+          }
+          .hour:after,
+          .minute:after {
+            content: ':';
+            margin-right: -2px;
+          }
+        </style>
+        <table @init="datetime" .firstElementChild="datetime">
+          <tr>
+            <td id="datetime0" class="weekday" .textContent>Freitag</td>
+            <td id="datetime2" class="day" .textContent>10</td>
+            <td id="datetime4" class="month" .textContent>October</td>
+            <td id="datetime6" class="year" .textContent>2025</td>
+            <td id="datetime8" class="hour" .textContent>22</td>
+            <td id="datetime10" class="minute" .textContent>15</td>
+            <td id="datetime12" .textContent>15</td>
+            <td id="datetime14" .textContent>MESZ</td>
+          </tr>
+        </table>
+	<!-- prettier-ignore -->
+        <sig-nal new="datetime" for="previousElementSibling" hydrate hidden>
+          {"": {"@init": ({signal}) => setInterval(() => (signal.value = Intl.DateTimeFormat('de-CH', { dateStyle: 'full', timeStyle: 'long' }).formatToParts(Date.now()).map(({value}) => value)), 1000),
+                ".firstElementChild": renderWith(index(['.textContent']), false)
+	       }
+	  }
+        </sig-nal>
+      </template>
+    </digital-clock>
+    <div class="featured">
+      <template shadowrootmode="open">
+        <link rel="stylesheet" href="./counterdemo.css" />
+        <h3>Interactive island</h3>
+        <p>The server supplied the initial value <b>0.</b></p>
+        <p>
+          <span class="even">Even</span>&nbsp;and&nbsp;<span class="odd"
+            >odd</span
+          >&nbsp;values are distinguished.
+        </p>
+        <div>
+          <button id="dec" @click="counterclassmap">-</button>
+          <span id="value" .textContent="counterclassmap" .classMap="counterclassmap">0</span>
+          <button id="inc" @click="counterclassmap">+</button>
+	  <!-- prettier-ignore -->
+          <sig-nal
+            new="counterclassmap"
+            type="number"
+            default=".textContent#value"
+            hydrate hidden>
+            { value: { ".textContent": rerender,
+                       ".classMap": plugin(({signal}) => ({even: computed(() => !(signal.value & 1)),
+	                                                    odd: computed(() =>   signal.value & 1)}))
+		     },
+	      dec: { "@click": ({signal}) => signal.value-- },
+	      inc: { "@click": ({signal}) => signal.value++ }
+	    }
+          </sig-nal>
+        </div>
       </template>
     </div>
 
-    <div class="counter2">
-      <template shadowrootmode="open">
-	<sty-le id="counter-styles"></sty-le>
-	<h1 !title="counter">
-	  <sig-nal ref="title">Counters</sig-nal>
-	</h1>
-	<div class="container">
-	  <button @click="counter">
-	    <sig-nal ref="inc">+</sig-nal>
-	  </button>
-	  <span .textContent="counter">
-	    <sig-nal new="counter" type="number">0</sig-nal>
-          </span>
-	  <button @click="counter">
-	    <sig-nal ref="dec">-</sig-nal>
-	  </button>
-	</div>
-      </template>
-    </div>
-
-    <div class="clock">
-      <template shadowrootmode="open">
-	<style>.weekday:after{content:','}.day:after{content:'.'}.hour:after,.minute:after{content:':';margin-right: -2px}</style>
-	<h1>Date and Time</h1>
-	<table><tr>
-	  <td class="weekday" .textContent="weekday"><sig-nal new="weekday" id="weekday">Donnerstag</sig-nal></td>
-	  <td class="day" .textContent="day"><sig-nal new="day" id="day">9</sig-nal></td>
-	  <td class="month" .textContent="month"><sig-nal new="month" id="month">Mai</sig-nal></td>
-	  <td class="year" .textContent="year"><sig-nal new="year" id="year">2024</sig-nal></td>
-	  <td class="hour" .textContent="hour"><sig-nal new="hour" id="hour">15</sig-nal></td>
-	  <td class="minute" .textContent="minute"><sig-nal new="minute" id="minute">05</sig-nal></td>
-	  <td .textContent="second"><sig-nal new="second" id="second">05</sig-nal></td>
-	  <td .textContent="timeZoneName"><sig-nal new="timeZoneName" id="timeZoneName">MESZ</sig-nal></td>
-	</tr></table>
-      </template>
-    </div>
-
-    <details><summary>Info</summary>
-      <p>Demo (c) 2024 by Markus Walther. Witness how both counter/FAQ instances are independent of each other, thanks to shadowRoot scoping!
-	In Chrome DevTools, enable Rendering &rarr; Paint flashing to see fine-grained DOM updates!</p>
+    <details>
+      <summary>Info</summary>
+      <p>
+        Demo (c) 2025 by Markus Walther. Witness how both counter/FAQ instances
+        are independent of each other, thanks to shadowRoot scoping! In Chrome
+        DevTools, enable Rendering &rarr; Paint flashing to see fine-grained DOM
+        updates!
+      </p>
     </details>
 
     <div class="more-stuff">
       <template shadowrootmode="open">
-	<style>button{box-shadow:1px 2px 3px rgba(0,0,0,.3);padding:.5rem;cursor:pointer;margin-bottom:150rem}acc-ordion{display:block;width:100%}acc-ordion p{color:#464de4}</style>
-        <button @click="partial">
-	  <sig-nal ref="more">More</sig-nal>
-	</button>
-	<part-ial .src="partial"><sig-nal new="partial"></sig-nal></part-ial>
+        <style>
+          button {
+            display: block;
+            margin: 0 auto;
+            box-shadow: 1px 2px 3px rgba(0, 0, 0, 0.3);
+            padding: 0.5rem;
+            cursor: pointer;
+          }
+          acc-ordion {
+            display: block;
+            width: 100%;
+          }
+          acc-ordion p {
+            color: #464de4;
+          }
+        </style>
+        <div>
+          <button id="more" @click="partial">More</button>
+          <part-ial id="partial" .src="partial"></part-ial>
+          <!-- prettier-ignore -->
+          <sig-nal new="partial" hydrate>
+            {more: {"@click": ({getById, id, signal}) => (getById(id).disabled = true) && (signal.value = './accordion.html')},
+             partial: {".src": rerender}
+            }
+          </sig-nal>
+        </div>
       </template>
     </div>
-
-    <script type="module">
-const { hydrate, render, rerender, usable } = await customElements.whenDefined("sig-nal");
-
-await usable(['.classMap']);
-
-hydrate(["div#counter1", "div.counter2"], {
-    title: {
-      "!title": rerender,
-      ".textContent": render(document.title),
-    },
-    counter: { ".textContent": rerender },
-    inc: { "@click": ({ signal }) => signal.value++ },
-    dec: { "@click": ({ signal }) => signal.value-- },
-    h1: {
-      ".classMap": {
-        odd: ({ signal }) => signal.when((value) => value % 2),
-        even: ({
-          signals: {
-            counter: { signal },
-          },
-        }) => signal.when((value) => !(value % 2)),
-      },
-    },
-  });
-
-  let clockSignals = {},
-    last = [];
-
-  const dateParts = () =>
-    Intl.DateTimeFormat("de-CH", { dateStyle: "full", timeStyle: "long" })
-      .formatToParts(Date.now())
-      .filter(
-        ({ type, value }, i) =>
-          type !== "literal" && value !== last[i] && (last[i] = value),
-      );
-
-  const generate = (parts) => {
-    const renderSpec = {};
-    parts.forEach(
-      ({ type, value }) => (renderSpec[type] = { ".textContent": rerender }),
-    );
-    return renderSpec;
-  };
-
-  hydrate(["div.clock"], generate(dateParts()), clockSignals);
-
-  last = [];
-
-  const updateDateParts = () =>
-    dateParts().forEach(
-      ({ type, value }) => (clockSignals[type].value = value),
-    );
-
-  updateDateParts();
-
-  setInterval(updateDateParts, 1000);
-
-  hydrate([".more-stuff"], {
-    more: { "@click": ({domNode, signal}) => ( (domNode.disabled = true) && (signal.value = "./accordion.html") ) },
-    partial: { ".src": rerender }
-  });
-    </script>
   </body>
 </html>

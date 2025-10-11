@@ -1,179 +1,150 @@
-// module constants
-let NONE = {};
-let INIT = [
-  (root, attributeName) => root[attributeName],
-  (root, attributeName) => root.hasAttribute(attributeName),
-  (root, attributeName) => root.getAttribute(attributeName),
-  root => 1,
-  root => 0
-];
-let EXTRA_NON_BODY_PROPERTIES = ['selectedIndex'];
+// imports
+import { signal, computed } from './turbo-signal.js';
+
+// module globals
+
+// an initializable WeakMap
 
 class initWeakMap extends WeakMap {
   use = (key, initializer = {}) =>
     this.get(key) || this.set(key, initializer).get(key);
 }
 
-// module globals
-let shadowMap = {};
-let scopeMap = new initWeakMap();
-let rootMap = new initWeakMap();
 let signalMap = new initWeakMap();
-let { body } = document;
 
-// e.g. ".textcontent" |-> "textContent", ...
-let specialAttributesToProperties = {};
+let plugins = new Proxy(
+  {},
+  {
+    async get(target, prop) {
+      return (await import('./plugins/' + prop + '.js')).default;
+    }
+  }
+);
 
 // helpers
-let convert = (value, type) => (type === 'number' ? value | 0 : value);
 
-let getAllProperties = (e = body, props = []) =>
-  e.__proto__
-    ? getAllProperties(e.__proto__, props.concat(Object.getOwnPropertyNames(e)))
-    : [...new Set(props.concat(Object.getOwnPropertyNames(e)))];
+// convert a string value
+let convert = (stringValue, type) =>
+  type === 'number' ? stringValue | 0 : stringValue;
 
-// initialize special-attributes |-> propertyNames mapping from <body> properties
-for (let property of [...getAllProperties(), ...EXTRA_NON_BODY_PROPERTIES]) {
-  let propertyType = typeof body[property];
-  let special = propertyType === 'function' ? ':' : '.';
-  specialAttributesToProperties[special + property.toLowerCase()] = property;
-}
-
-// reactive signals class
-class Signal {
-  #value;
-  #effects = [];
-  #dirty = 0;
-
-  constructor(newValue) {
-    this.#value = newValue;
-  }
-
-  #changed = () =>
-    ++this.#dirty === 1 &&
-    queueMicrotask(() => {
-      this.#effects.map(effect => effect());
-      this.#dirty = 0;
-    });
-
-  get value() {
-    return this.#value;
-  }
-
-  set value(newValue) {
-    this.#value = newValue;
-    this.#changed();
-  }
-
-  onChange(
-    doThis,
-    initial,
-    index = this.#effects.length,
-    effect = () => doThis(this.#value)
-  ) {
-    if (initial) effect();
-    this.#effects[index] = effect;
-    return index;
-  }
-
-  when(callback, dependencies = []) {
-    let derivedSignal = new Signal();
-    this.onChange(value => (derivedSignal.value = callback(value)), true);
-    dependencies.map(dependency => dependency.onChange(this.#changed));
-    return derivedSignal;
-  }
-}
+// construct a a context for handlers in hydration descriptions
+let context = (self, id, specialAttribute, kind, name, domNode) => {
+  // self is a sig-nal *instance*:
+  // extract interesting public methods from it
+  let { getById, ctx } = self;
+  // get the signal name from the value of the special attribute
+  // (e.g. 'counter' from .textContent="counter")
+  let signalName = domNode.getAttribute(specialAttribute);
+  // get the map of all signals registered in the present scope
+  let signals = signalMap.get(ctx.scope);
+  // get the particular signal that the special attribute references
+  let signal = signals && signals[signalName];
+  // now that we have dealt with the special attribute, schedule its removal
+  queueMicrotask(() => domNode.removeAttribute(specialAttribute));
+  // return a handler function factory that gets the context info
+  // assembled above. A concrete handler function instance is
+  // usable as an e(vent) handler.
+  return handler => e =>
+    handler({ getById, ctx, name, signal, signals, id, kind, e, plugins });
+};
 
 // <sig-nal> class
-
-let plugins = {},
-  loaded = {};
-
 class SigNal extends HTMLElement {
-  #GA = (name, node = this) => node.getAttribute(name);
+  // private class fields
+  #GA = name => this.getAttribute(name); // shorthand method
 
-  #add = (attribute, root) => {
-    let firstChar = attribute[0],
-      attributeName = attribute.slice(1),
-      name = this.#GA(attribute, root),
-      kind = '.?!@:'.indexOf(firstChar);
-    if (kind >= 0) {
-      let init = INIT[kind](root, attributeName);
-      rootMap.use(root)[attribute] = { init, name, kind };
-      queueMicrotask(() => root.removeAttribute(attribute));
-    }
-  };
+  // static public class fields
 
-  static Signal = Signal;
+  // re-export signal creator function
+  static signal = signal; // e.g. signal(3)
+  static computed = computed; // e.g. computed(() => signal.value % 2)
 
-  static hydrate = (selectors, descriptors, exportedSignals) => {
-    let scopes =
-      typeof selectors === 'string'
-        ? shadowMap[selectors]
-        : selectors.map(
-            selector => document.querySelector(selector).shadowRoot
-          );
-    for (let scope of scopes) {
-      // scope already h(ydrated)?
-      if (!scope.h) {
-        // no, mark it as such to de-duplicate hydrate requests per scope
-        scope.h = 1;
-        let signals = signalMap.get(scope) || NONE;
-        for (let name in descriptors) {
-          let descriptor = name;
-          let domNodes = scopeMap.get(scope);
-          let domNode = domNodes[name];
-          let mapping = rootMap.get(domNode);
-          if (mapping) {
-            let properties = descriptors[name];
-            for (let property in properties) {
-              let handler = properties[property];
-              if (property in plugins) handler = plugins[property](handler);
-              let { name, init, kind } =
-                mapping[property.toLowerCase()] || NONE;
-              let { signal, type, id } = (name && signals[name]) || NONE;
-              if (exportedSignals instanceof Object && id && signal)
-                exportedSignals[id] = signal;
-              let attribute = property.slice(1);
-              let callback = e =>
-                handler({
-                  type,
-                  name: attribute,
-                  signal,
-                  signals,
-                  init,
-                  kind,
-                  domNode,
-                  domNodes,
-                  scope,
-                  descriptor,
-                  e
-                });
-              name &&
-                (property.startsWith('@')
-                  ? domNode.addEventListener(attribute, callback)
-                  : queueMicrotask(callback));
-            }
-          }
+  // plugin-call helper
+
+  // e.g. ".classMap": plugin(({signal}) => ({even: computed(() => !(signal.value & 1)), odd: computed(() => signal.value & 1) }))
+  static plugin = parametersToArgsFunction => parameters =>
+    parameters.plugins[parameters.name].then(callback =>
+      callback(parameters)(parametersToArgsFunction(parameters))
+    );
+
+  // hydrate the DOM tree under root from a hydration 'description',
+  // using the named sig-nal instance 'self'
+
+  static hydrate = description => self => {
+    // for all 'id' values in outermost layer of description:
+    for (let id in description) {
+      // get the special attributes on the node referenced by 'id'
+      let specialAttributes = description[id];
+      // for each special attribute (s.a.):
+      for (let specialAttribute in specialAttributes) {
+        // interpret it
+        let [handler, attributeName, firstChar, options = {}] = [
+          specialAttributes[specialAttribute], // the s.a. value
+          specialAttribute.slice(1), // the rest of the s.a.
+          specialAttribute[0] // the s.a.'s first character
+        ];
+        // handle special-case handler format: [handlerFunction, eventListenerOptions]
+        if (Array.isArray(handler)) {
+          [handler, options] = [handler[0], handler[1]];
+        }
+        // classify special attribute by its first character's index
+        let kind = '@.?!:'.indexOf(firstChar); // @ = 0, . = 1, ...
+        // skip non-special attributes (must be an error in the description)
+        if (kind < 0) continue;
+        // construct a callback function by passing the handler to a context
+        // given an 'id' value, get its DOM node
+        let { getById, root } = self;
+        let domNode = id ? getById(id) : root;
+        let callback = context(
+          self,
+          id,
+          specialAttribute,
+          kind,
+          attributeName,
+          domNode
+        )(handler);
+        // if not the event listener kind
+        if (kind) {
+          // execute callback right away
+          callback();
+        } else {
+          // register event listener using callback
+          domNode.addEventListener(attributeName, callback, options);
         }
       }
     }
   };
 
-  static plugin = (name, code) =>
-    (plugins[name] = code) && loaded[name] && loaded[name]();
+  // convenience methods to be used in hydration descriptions:
 
-  static usable = (arrayOfPluginNames, promises = []) => {
-    for (let name of arrayOfPluginNames) {
-      if (!plugins[name])
-        promises.push(new Promise(resolve => (loaded[name] = resolve)));
-    }
-    return Promise.all(promises);
-  };
+  static index =
+    (attrs, props = attrs.map(attr => attr.slice(1))) =>
+    ({ getById, ctx: { name }, signal }) =>
+    (model = signal.value) => {
+      for (
+        let i = 0, n = model?.length | 0, item, node, isArray, j;
+        i < n;
+        i++
+      ) {
+        item = model[i];
+        isArray = Array.isArray(item);
+        node = getById(name + i);
+        if (item === undefined || !node) continue;
+        j = 0;
+        for (let attr of attrs) {
+          if (node.hasAttribute(attr)) {
+            node[props[j]] = isArray ? item[j] : item;
+          }
+          j++;
+        }
+      }
+    };
 
+  // default DOM renderer: given a context, produce a signal.effect callback that
+  // knows how to render familiar DOM property/method updates
   static render =
-    value =>
-    ({ domNode, name, kind }) => {
+    ({ signal, getById, id, name, kind }) =>
+    (value = signal.value, domNode = getById(id)) => {
       value = typeof value === 'function' ? value() : value;
       if (/^dataset\.\S+/.test(name)) {
         domNode.dataset[name.slice(8)] = value;
@@ -182,96 +153,96 @@ class SigNal extends HTMLElement {
       }
     };
 
+  // given a callback, produce a function mapping context parameter to a
+  // signal.effect registration with the callback bound to said context.
+  // (by default, also execute the callback initially, not just when the signal
+  // value changes)
   static renderWith =
     (callback, initial = true) =>
     parameters =>
-      parameters.signal.onChange(callback(parameters), initial);
+      parameters.signal.effect(callback(parameters), initial);
 
-  static rerender = SigNal.renderWith(
-    parameters => value => SigNal.render(value)(parameters)
-  );
+  // upon signal changes, re-render using the default DOM renderer
+  static rerender = SigNal.renderWith(SigNal.render);
 
-  static index =
-    ({ scope, descriptor }) =>
-    model => {
-      for (let i = 0, n = model.length, item, node, selector; i < n; i++) {
-        item = model[i];
-        if (item !== undefined) {
-          selector = descriptor + i;
-          node =
-            scope instanceof DocumentFragment
-              ? scope.getElementById(selector)
-              : scope.querySelector('#' + selector);
-          for (
-            let a = 0,
-              attributeNames = node.getAttributeNames(),
-              m = attributeNames.length,
-              j = 0,
-              isArray = Array.isArray(item),
-              attribute;
-            a < m;
-            a++
-          ) {
-            attribute = attributeNames[a];
-            if (attribute in specialAttributesToProperties) {
-              node[specialAttributesToProperties[attribute]] = isArray
-                ? item[j++]
-                : item;
-            }
-          }
-        }
-      }
-    };
-
-  connectedCallback() {
-    let root = this[this.#GA('for') || 'parentNode'];
+  constructor() {
+    super();
+    // cache lots of attribute values determining the
+    // behaviour of this <sig-nal> instance
+    let root = (this.root = this[this.#GA('for') || 'parentNode']);
     let scope = this.#GA('scope');
     scope = scope ? this.closest(scope) : this.getRootNode();
+    let isShadowDOM = scope instanceof ShadowRoot;
     let isSignal = this.#GA('new');
     let name = isSignal || this.#GA('ref') || crypto.randomUUID();
     let type = this.#GA('type');
+    let [defaultAttribute, defaultId] = (this.#GA('default') || '').split('#');
+
     let { id, textContent } = this;
 
-    (shadowMap[name] = shadowMap[name] || []).push(scope);
-    scopeMap.use(scope)[name] = root;
+    // determine the fastest id-getter function, taking into account whether
+    // we're inside ShadowDOM or not
+    this.getById = isShadowDOM
+      ? id => root.querySelector('#' + id)
+      : id => document.getElementById(id); // fastest
+    // bundle up attributes of this instance (some derived,
+    // some directly cached), to later serve as callback context
+    this.ctx = { root, scope, name, type, id, description: textContent };
 
+    // are we asked to create a signal instance?
     if (isSignal) {
-      signalMap.use(scope)[name] = {
-        signal: new Signal(convert(textContent || this.#GA('value'), type)),
-        type,
-        id
-      };
+      // yes, determine its initial value-as-string
+      let value = defaultAttribute
+        ? this.getById(defaultId)[defaultAttribute.slice(1)]
+        : this.#GA('value');
+      // then create and enter it into a map under our current scope
+      // with type-appropriate value conversion
+      signalMap.use(scope)[name] = signal(convert(value, type));
     }
 
-    for (let attribute of root.getAttributeNames()) {
-      this.#add(attribute, root);
-    }
-
+    // are we asked to automatically enrich the DOM tree under
+    // our root with 'id' values if they are missing?
     if (this.#GA('index') !== null) {
+      // yes, set up
       let indexWalker = document.createTreeWalker(
         root,
-        NodeFilter.SHOW_ELEMENT
+        1 // NodeFilter.SHOW_ELEMENT
       );
       let i = 0,
-        current;
+        node,
+        id;
+      // now walk the DOM tree starting from root:
       while (indexWalker.nextNode()) {
-        let current = indexWalker.currentNode;
-        if (current.id === name) current.id = `${name}${i++}`;
+        // get the current node,
+        let node = indexWalker.currentNode;
+        // (skipping our own <sig-nal> node, of course)
+        if (node === this) continue;
+        // if marked as needing an index,
+        // assign a *computed* unique 'id' value scoped to the <sig-nal new=name>
+        if (node.id === name) node.id = name + i++;
       }
     }
 
+    // do we have an inlined-as-text-child-node hydration description?
     if (this.#GA('hydrate') !== null) {
+      // yes, evaluate it
       new Function(
-        `let{hydrate,render,rerender,renderWith,index}=customElements.get('sig-nal');hydrate('${name}',${textContent})`
-      )();
+        `let{hydrate,render,rerender,renderWith,index,plugin,computed}=customElements.get('sig-nal');return hydrate(${textContent})`
+      )()(this);
+      // remove the text child node
       textContent = '';
+      // send an initial event
       root.dispatchEvent(new Event('init'));
     }
 
+    // unless the presence of some CSS class(es) rescues it...
     if (!this.className) {
+      // ... this element will be replaced by its child text
+      // (which we can do because we rescued all its parameters into closures living inside hydrate)
       this.replaceWith(textContent);
     }
-  } // end connectedCallback
+  } // end constructor
 } // end class SigNal
 
+// register custom element
 customElements.define('sig-nal', SigNal);

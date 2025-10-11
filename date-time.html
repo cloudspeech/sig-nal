@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en-US" style="height: 100%">
+  <head>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="description" content="sig-nal counter-classmap demo" />
+    <title>sig-nal | counter-classmap demo</title>
+    <script type="module" src="./dist/index.min.js"></script>
+  </head>
+  <body>
+    <digital-clock>
+      <template shadowrootmode="open">
+        <style>
+          * {
+            font-family: system-ui;
+            font-weight: 700;
+            font-size: 26px;
+          }
+
+          table {
+            background: #555;
+            color: #fff;
+            padding: 0 5px;
+            border-radius: 5px;
+          }
+
+          td {
+            min-width: 36px;
+          }
+
+          .year {
+            min-width: 72px;
+          }
+
+          .weekday:after {
+            content: ',';
+          }
+          .day:after {
+            content: '.';
+          }
+          .hour:after,
+          .minute:after {
+            content: ':';
+            margin-right: -2px;
+          }
+        </style>
+        <table @init="datetime" .firstElementChild="datetime">
+          <tr>
+            <td id="datetime0" class="weekday" .textContent>Freitag</td>
+            <td id="datetime2" class="day" .textContent>10</td>
+            <td id="datetime4" class="month" .textContent>October</td>
+            <td id="datetime6" class="year" .textContent>2025</td>
+            <td id="datetime8" class="hour" .textContent>22</td>
+            <td id="datetime10" class="minute" .textContent>15</td>
+            <td id="datetime12" .textContent>15</td>
+            <td id="datetime14" .textContent>MESZ</td>
+          </tr>
+        </table>
+        <!-- prettier-ignore -->
+        <sig-nal new="datetime" for="previousElementSibling" hydrate>
+      {"":{"@init": ({signal}) => setInterval(() => (signal.value = Intl.DateTimeFormat('de-CH', { dateStyle: 'full', timeStyle: 'long' }).formatToParts(Date.now()).map(({value}) => value)), 1000),
+          ".firstElementChild": renderWith(index(['.textContent']), false)
+          }
+      }
+    </sig-nal>
+      </template>
+    </digital-clock>
+  </body>
+</html>

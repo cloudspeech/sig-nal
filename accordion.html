@@ -2,37 +2,49 @@
 
 <acc-ordion>
   <template shadowrootmode="open">
-    <link href="./accordion.css" rel="stylesheet" type="text/css">
+    <link href="./accordion.css" rel="stylesheet" type="text/css" />
     <ul @click="accordion">
-      <sig-nal ref="accordion"></sig-nal>
-	  <li>
-	    <span>Why?</span>
-	    <button title="open">
-	      <svg viewBox="0 0 24 24">
-		<path fill="currentColor" d="M0 11h24v2H0z"/>
-		<path fill="currentColor" d="M13 0h-2v24h2z" class="closed"/>
-	      </svg>
-	    </button>
-	  </li>
+      <!-- prettier-ignore -->
+      <sig-nal ref="accordion" hydrate>
+        {'': {'@click': ({e}) => {
+                              const buttons = e.composedPath().filter(node => node.tagName === 'BUTTON');
+                              if (!buttons.length) return;
+                              const button = buttons[0];
+                              const slot = button.parentNode.nextElementSibling;
+                              const isOpen = button.classList.contains('open');
+                              button.classList[isOpen ? 'remove' : 'add']('open');
+                              button.title = isOpen ? 'open' : 'close';
+                              slot.classList[isOpen ? 'remove' : 'add']('show');
+        }}}
+      </sig-nal>
+      <li>
+        <span>Why?</span>
+        <button title="open">
+          <svg viewBox="0 0 24 24">
+            <path fill="currentColor" d="M0 11h24v2H0z" />
+            <path fill="currentColor" d="M13 0h-2v24h2z" class="closed" />
+          </svg>
+        </button>
+      </li>
       <li class="content"><slot name="a1"></slot></li>
       <li>
-	<span>How?</span>
-	<button title="open">
-	  <svg viewBox="0 0 24 24">
-	    <path fill="currentColor" d="M0 11h24v2H0z"/>
-	    <path fill="currentColor" d="M13 0h-2v24h2z" class="closed"/>
-	  </svg>
-	</button>
+        <span>How?</span>
+        <button title="open">
+          <svg viewBox="0 0 24 24">
+            <path fill="currentColor" d="M0 11h24v2H0z" />
+            <path fill="currentColor" d="M13 0h-2v24h2z" class="closed" />
+          </svg>
+        </button>
       </li>
       <li class="content"><slot name="a2"></slot></li>
       <li>
-	<span>What?</span>
-	<button title="open">
-	  <svg viewBox="0 0 24 24">
-	    <path fill="currentColor" d="M0 11h24v2H0z"/>
-	    <path fill="currentColor" d="M13 0h-2v24h2z" class="closed"/>
-	  </svg>
-	</button>
+        <span>What?</span>
+        <button title="open">
+          <svg viewBox="0 0 24 24">
+            <path fill="currentColor" d="M0 11h24v2H0z" />
+            <path fill="currentColor" d="M13 0h-2v24h2z" class="closed" />
+          </svg>
+        </button>
       </li>
       <li class="content"><slot name="a3"></slot></li>
     </ul>
@@ -41,43 +53,54 @@
   <p slot="a2">Using vanilla JS and web components!</p>
   <p slot="a3">A demo for server-side rendering with &lt;sig-nal&gt;.</p>
 </acc-ordion>
-<img src="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221%22%20height%3D%221%22%2F%3E" alt="load accordion" width="1" height="1" loading="lazy" onload="import('./accordion.js')">
 
 <h2>FAQ 2</h2>
 
 <acc-ordion>
   <template shadowrootmode="open">
-    <link href="./accordion.css" rel="stylesheet" type="text/css">
+    <link href="./accordion.css" rel="stylesheet" type="text/css" />
     <ul @click="accordion">
-      <sig-nal ref="accordion"></sig-nal>
+      <!-- prettier-ignore -->
+      <sig-nal ref="accordion" hydrate>
+        {'': {'@click': ({e}) => {
+                              const buttons = e.composedPath().filter(node => node.tagName === 'BUTTON');
+                              if (!buttons.length) return;
+                              const button = buttons[0];
+                              const slot = button.parentNode.nextElementSibling;
+                              const isOpen = button.classList.contains('open');
+                              button.classList[isOpen ? 'remove' : 'add']('open');
+                              button.title = isOpen ? 'open' : 'close';
+                              slot.classList[isOpen ? 'remove' : 'add']('show');
+        }}}
+      </sig-nal>
       <li>
-	<span>Why?</span>
-	<button title="open">
-	  <svg viewBox="0 0 24 24">
-	    <path fill="currentColor" d="M0 11h24v2H0z"/>
-	    <path fill="currentColor" d="M13 0h-2v24h2z" class="closed"/>
-	  </svg>
-	</button>
+        <span>Why?</span>
+        <button title="open">
+          <svg viewBox="0 0 24 24">
+            <path fill="currentColor" d="M0 11h24v2H0z" />
+            <path fill="currentColor" d="M13 0h-2v24h2z" class="closed" />
+          </svg>
+        </button>
       </li>
       <li class="content"><slot name="a1"></slot></li>
       <li>
-	<span>How?</span>
-	<button title="open">
-	  <svg viewBox="0 0 24 24">
-	    <path fill="currentColor" d="M0 11h24v2H0z"/>
-	    <path fill="currentColor" d="M13 0h-2v24h2z" class="closed"/>
-	  </svg>
-	</button>
+        <span>How?</span>
+        <button title="open">
+          <svg viewBox="0 0 24 24">
+            <path fill="currentColor" d="M0 11h24v2H0z" />
+            <path fill="currentColor" d="M13 0h-2v24h2z" class="closed" />
+          </svg>
+        </button>
       </li>
       <li class="content"><slot name="a2"></slot></li>
       <li>
-	<span>What?</span>
-	<button title="open">
-	  <svg viewBox="0 0 24 24">
-	    <path fill="currentColor" d="M0 11h24v2H0z"/>
-	    <path fill="currentColor" d="M13 0h-2v24h2z" class="closed"/>
-	  </svg>
-	</button>
+        <span>What?</span>
+        <button title="open">
+          <svg viewBox="0 0 24 24">
+            <path fill="currentColor" d="M0 11h24v2H0z" />
+            <path fill="currentColor" d="M13 0h-2v24h2z" class="closed" />
+          </svg>
+        </button>
       </li>
       <li class="content"><slot name="a3"></slot></li>
     </ul>
@@ -86,4 +109,3 @@
   <p slot="a2">Using vanilla JS and web components!</p>
   <p slot="a3">A demo for server-side rendering with &lt;sig-nal&gt;.</p>
 </acc-ordion>
-<img src="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221%22%20height%3D%221%22%2F%3E" alt="load accordion" width="1" height="1" loading="lazy" onload="import('./accordion.js')">

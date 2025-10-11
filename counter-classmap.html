@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en-US" style="height: 100%">
+  <head>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="description" content="sig-nal counter-classmap demo" />
+    <title>sig-nal | counter-classmap demo</title>
+    <script type="module" src="./dist/index.js"></script>
+  </head>
+  <body>
+    <template shadowrootmode="open">
+      <link rel="stylesheet" href="./counterdemo.css" />
+      <h3>Interactive island</h3>
+      <p>The server supplied the initial value <b>0.</b></p>
+      <p>
+        <span class="even">Even</span>&nbsp;and&nbsp;<span class="odd">odd</span
+        >&nbsp;values are distinguished.
+      </p>
+      <div>
+        <button id="dec" @click="counterclassmap">-</button>
+        <span
+          id="value"
+          .textContent="counterclassmap"
+          .classMap="counterclassmap"
+          >0</span
+        >
+        <button id="inc" @click="counterclassmap">+</button>
+        <!-- prettier-ignore -->
+        <sig-nal
+          new="counterclassmap"
+          type="number"
+          default=".textContent#value"
+          hydrate>
+          { value: { ".textContent": rerender,
+                     ".classMap": plugin(({signal}) => ({even: computed(() => !(signal.value & 1)), odd: computed(() => signal.value & 1)}))
+                   },
+            dec:   { "@click": ({signal}) => signal.value-- },
+            inc:   { "@click": ({signal}) => signal.value++ }
+          }
+        </sig-nal>
+      </div>
+    </template>
+  </body>
+</html>

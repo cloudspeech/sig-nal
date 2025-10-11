@@ -1,4 +1,4 @@
-customElements.whenDefined("sig-nal").then(
+customElements.whenDefined('sig-nal').then(
   // register new plugin using static class method 'plugin'
   SigNal => {
     const { Signal } = SigNal;
@@ -8,7 +8,7 @@ customElements.whenDefined("sig-nal").then(
       // init a signal-valued dependencies set to empty
       let signals = new Set(); // using a set automatically de-duplicates!
       // define helpers
-      let isFunction = value => typeof value === "function";
+      let isFunction = value => typeof value === 'function';
       let classMap = action => {
         // for all classes-as-keys in the map object:
         for (let aClass in map) {
@@ -23,7 +23,7 @@ customElements.whenDefined("sig-nal").then(
             value = value.value;
           }
           // set or delete the class based on the truthiness of 'value'
-          cl[value ? "add" : "remove"](aClass);
+          cl[value ? 'add' : 'remove'](aClass);
         }
         return;
       };
@@ -39,6 +39,6 @@ customElements.whenDefined("sig-nal").then(
       allSignals[0].when(classMap, allSignals.slice(1));
     };
 
-    SigNal.plugin(".classMap", pluginCode);
-  },
+    SigNal.plugin('.classMap', pluginCode);
+  }
 );
