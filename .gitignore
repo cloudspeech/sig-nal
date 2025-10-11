@@ -4,3 +4,5 @@ bun.lockb
 .DS_Store
 *.old*
 talk/
+bun.lock
+
