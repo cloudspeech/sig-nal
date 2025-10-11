@@ -1,59 +1,60 @@
 :host {
-    display: block;
-    --accordion-bg: #fff;
+  display: block;
+  --accordion-bg: #fff;
 }
 * {
-    margin: 0;
-    padding: 0;
-    color: #333;
-    background: var(--accordion-bg)
+  margin: 0;
+  padding: 0;
+  color: #333;
+  background: var(--accordion-bg);
 }
 ul {
-    list-style: none;
+  list-style: none;
+  min-width: 26rem;
 }
 li {
-    display: flex;
-    justify-content: space-between;
-    padding: 1rem;
-    border: 1px solid #ddd;
+  display: flex;
+  justify-content: space-between;
+  padding: 1rem;
+  border-bottom: 1px solid #ddd;
 }
 button {
-    height: 24px;
-    width: 24px;
-    border: 0;
-    cursor: pointer
+  height: 24px;
+  width: 24px;
+  border: 0;
+  cursor: pointer;
 }
 svg {
-    width: 1rem;
-    height: 1rem;
+  width: 1rem;
+  height: 1rem;
 }
 svg path.closed {
-    display: none
+  display: none;
 }
 button:not(.open) svg path.closed {
-    display: block
+  display: block;
 }
 slot {
-    padding: 0 1rem
+  padding: 0 1rem;
 }
 .content {
-    display: grid;
-    grid-template-rows: 0fr;
-    padding: 0;
-    transition: grid-template-rows 500ms
+  display: grid;
+  grid-template-rows: 0fr;
+  padding: 0;
+  transition: grid-template-rows 500ms;
 }
 .content.show {
-    grid-template-rows: 1fr;
-    padding: 1rem;
-    border-top: 0
+  grid-template-rows: 1fr;
+  padding: 1rem;
+  border-top: 0;
 }
 .content > * {
-    display: block;
-    overflow: hidden
+  display: block;
+  overflow: hidden;
 }
 .content:last-child {
-    border-bottom: 0
+  border-bottom: 0;
 }
 .content.show:last-child {
-    padding-bottom: .5rem
+  padding-bottom: 0.5rem;
 }

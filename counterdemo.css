@@ -4,12 +4,19 @@
 }
 
 *:not(style, span) {
-  display: flex;
   font-family: sans-serif;
   font-size: x-large;
   padding: 1rem;
-  justify-content: center;
-  align-items: center;
+  text-align: center;
+}
+
+div,
+h3 {
+  display: block;
+}
+
+b {
+  padding: 0;
 }
 
 button {

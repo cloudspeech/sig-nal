@@ -8,9 +8,7 @@
       const files = ['index'];
       const isProduction = location.search.includes('prod');
       for (let file of files) {
-        import(
-          `./${isProduction ? 'dist' : 'src'}/${file}${isProduction ? '.min.js' : '.js'}`
-        );
+        import(`./${isProduction ? 'dist' : 'src'}/${file}.js`);
       }
     </script>
     <style>
