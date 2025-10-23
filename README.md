@@ -15,7 +15,7 @@ This software is in beta, but already used in production.
 
 ## Counter Example
 
-No build needed, 27 lines of static HTML, 3.1 kB. Compares favourably to [Fresh framework by Deno](https://fresh.deno.dev/) and others! [Try it out!](https://cloudspeech.github.io/sig-nal/counter.html)
+No build needed, 27 lines of static HTML, 3 kB. Compares favourably to [Fresh framework by Deno](https://fresh.deno.dev/) and others! [Try it out!](https://cloudspeech.github.io/sig-nal/counter.html)
 
 <img width="755" height="582" alt="Screenshot 2025-10-23 at 12 34 13" src="https://github.com/user-attachments/assets/be1cfe29-c26b-4123-b386-17aefce6f543" />
 
