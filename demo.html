@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en-US" style="height:240vh">
+<html lang="en-US" style="height: 240vh">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
@@ -38,14 +38,14 @@
         cursor: pointer;
         padding: 1rem 3rem;
         color: #fff;
-	max-width: 26rem;
+        max-width: 26rem;
       }
 
       .featured {
         box-shadow: 1px 2px 3px #000;
         margin: 1rem;
-	width: 320px;
-	height: 500px;
+        width: 320px;
+        height: 500px;
       }
 
       digital-clock {
@@ -57,9 +57,7 @@
       const files = ['index', 'plugins/part-ial'];
       const isProduction = location.search.includes('prod');
       for (let file of files) {
-        import(
-          `./${isProduction ? 'dist' : 'src'}/${file}.js`
-        );
+        import(`./${isProduction ? 'dist' : 'src'}/${file}.js`);
       }
     </script>
   </head>
@@ -70,10 +68,10 @@
         <h3>Interactive island</h3>
         <p>The server supplied the initial value <b>3.</b></p>
         <div>
-          <button id="dec" @click="counter">-</button>
-          <span id="value" .textContent="counter">3</span>
-          <button id="inc" @click="counter">+</button>
-	  <!-- prettier-ignore -->
+          <button id="dec">-</button>
+          <span id="value">3</span>
+          <button id="inc">+</button>
+          <!-- prettier-ignore -->
           <sig-nal
             new="counter"
             type="number"
@@ -123,7 +121,7 @@
             margin-right: -2px;
           }
         </style>
-        <table @init="datetime" .firstElementChild="datetime">
+        <table>
           <tr>
             <td id="datetime0" class="weekday" .textContent>Freitag</td>
             <td id="datetime2" class="day" .textContent>10</td>
@@ -135,7 +133,7 @@
             <td id="datetime14" .textContent>MESZ</td>
           </tr>
         </table>
-	<!-- prettier-ignore -->
+        <!-- prettier-ignore -->
         <sig-nal new="datetime" for="previousElementSibling" hydrate hidden>
           {"": {"@init": ({signal}) => setInterval(() => (signal.value = Intl.DateTimeFormat('de-CH', { dateStyle: 'full', timeStyle: 'long' }).formatToParts(Date.now()).map(({value}) => value)), 1000),
                 ".firstElementChild": renderWith(index(['.textContent']), false)
@@ -155,10 +153,10 @@
           >&nbsp;values are distinguished.
         </p>
         <div>
-          <button id="dec" @click="counterclassmap">-</button>
-          <span id="value" .textContent="counterclassmap" .classMap="counterclassmap">0</span>
-          <button id="inc" @click="counterclassmap">+</button>
-	  <!-- prettier-ignore -->
+          <button id="dec">-</button>
+          <span id="value">0</span>
+          <button id="inc">+</button>
+          <!-- prettier-ignore -->
           <sig-nal
             new="counterclassmap"
             type="number"
@@ -168,8 +166,8 @@
                        ".classMap": plugin(({signal}) => ({even: computed(() => !(signal.value & 1)),
 	                                                    odd: computed(() =>   signal.value & 1)}))
 		     },
-	      dec: { "@click": ({signal}) => signal.value-- },
-	      inc: { "@click": ({signal}) => signal.value++ }
+	        dec: { "@click": ({signal}) => signal.value-- },
+	        inc: { "@click": ({signal}) => signal.value++ }
 	    }
           </sig-nal>
         </div>
@@ -205,11 +203,11 @@
           }
         </style>
         <div>
-          <button id="more" @click="partial">More</button>
-          <part-ial id="partial" .src="partial"></part-ial>
+          <button id="more">More</button>
+          <part-ial id="partial"></part-ial>
           <!-- prettier-ignore -->
           <sig-nal new="partial" hydrate>
-            {more: {"@click": ({getById, id, signal}) => (getById(id).disabled = true) && (signal.value = './accordion.html')},
+            {   more: {"@click": ({getById, id, signal}) => (getById(id).disabled = true) && (signal.value = './accordion.html')},
              partial: {".src": rerender}
             }
           </sig-nal>
