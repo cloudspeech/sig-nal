@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en-US" style="height:100%">
+<html lang="en-US" style="height: 100%">
   <head>
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <meta name="description" content="sig-nal counter demo" />
@@ -12,13 +12,13 @@
       <h3>Interactive island</h3>
       <p>The server supplied the initial value <b>3.</b></p>
       <div>
-        <button id="dec" @click="counter">-</button>
-        <span id="value" .textContent="counter">3</span>
-        <button id="inc" @click="counter">+</button>
+        <button id="dec">-</button>
+        <span id="value">3</span>
+        <button id="inc">+</button>
         <sig-nal new="counter" type="number" default=".textContent#value" hydrate>
           { value: { ".textContent": rerender },
-	    dec: { "@click": ({signal}) => signal.value-- },
-	    inc: { "@click": ({signal}) => signal.value++ }
+	      dec: { "@click": ({signal}) => signal.value-- },
+	      inc: { "@click": ({signal}) => signal.value++ }
 	  }
         </sig-nal>
       </div>

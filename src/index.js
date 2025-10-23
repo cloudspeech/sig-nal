@@ -28,19 +28,26 @@ let convert = (stringValue, type) =>
   type === 'number' ? stringValue | 0 : stringValue;
 
 // construct a a context for handlers in hydration descriptions
+// (name is the *attribute* name)
 let context = (self, id, specialAttribute, kind, name, domNode) => {
   // self is a sig-nal *instance*:
   // extract interesting public methods from it
   let { getById, ctx } = self;
-  // get the signal name from the value of the special attribute
+  // try to get the signal name from the value of the special attribute *in the DOM*
   // (e.g. 'counter' from .textContent="counter")
-  let signalName = domNode.getAttribute(specialAttribute);
+  // This is useful to disambiguate cases when *multiple* sig-nal instances
+  // overlap in scope, and the direct reference to the particular signal meant here
+  // (rather than the roundabout signals.theNameIMeanHere) is desired
+  let signalNameFromSpecialAttribute = domNode.getAttribute(specialAttribute);
   // get the map of all signals registered in the present scope
   let signals = signalMap.get(ctx.scope);
   // get the particular signal that the special attribute references
-  let signal = signals && signals[signalName];
+  // (falling back to the signal instance's name if it registered a
+  // name with <sig-nal new="theName" ...>)
+  let signal = signals && signals[signalNameFromSpecialAttribute || self.name];
   // now that we have dealt with the special attribute, schedule its removal
-  queueMicrotask(() => domNode.removeAttribute(specialAttribute));
+  if (signalNameFromSpecialAttribute)
+    queueMicrotask(() => domNode.removeAttribute(specialAttribute));
   // return a handler function factory that gets the context info
   // assembled above. A concrete handler function instance is
   // usable as an e(vent) handler.
@@ -174,7 +181,7 @@ class SigNal extends HTMLElement {
     scope = scope ? this.closest(scope) : this.getRootNode();
     let isShadowDOM = scope instanceof ShadowRoot;
     let isSignal = this.#GA('new');
-    let name = isSignal || this.#GA('ref') || crypto.randomUUID();
+    let name = (this.name = isSignal) || this.#GA('ref') || crypto.randomUUID();
     let type = this.#GA('type');
     let [defaultAttribute, defaultId] = (this.#GA('default') || '').split('#');
 
