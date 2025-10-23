@@ -17,8 +17,7 @@ This software is in beta, but already used in production.
 
 No build needed, 27 lines of static HTML, 3.1 kB. Compares favourably to [Fresh framework by Deno](https://fresh.deno.dev/) and others! [Try it out!](https://cloudspeech.github.io/sig-nal/counter.html)
 
-<img width="756" height="579" alt="counter-example" src="https://github.com/user-attachments/assets/3c1429ff-86ba-4c52-ae43-b6af0d6b68f3" />
-
+<img width="755" height="582" alt="Screenshot 2025-10-23 at 12 34 13" src="https://github.com/user-attachments/assets/be1cfe29-c26b-4123-b386-17aefce6f543" />
 
 ## DBMonster Example
 
