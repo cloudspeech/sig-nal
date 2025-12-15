@@ -45,6 +45,15 @@ let context = (self, id, specialAttribute, kind, name, domNode) => {
   // (falling back to the signal instance's name if it registered a
   // name with <sig-nal new="theName" ...>)
   let signal = signals && signals[signalNameFromSpecialAttribute || self.name];
+  // install a convenience proxy to get (DOM) nodes by id
+  let nodes = new Proxy(
+    {},
+    {
+      get(_, id) {
+        return getById(id);
+      }
+    }
+  );
   // now that we have dealt with the special attribute, schedule its removal
   if (signalNameFromSpecialAttribute)
     queueMicrotask(() => domNode.removeAttribute(specialAttribute));
@@ -52,7 +61,18 @@ let context = (self, id, specialAttribute, kind, name, domNode) => {
   // assembled above. A concrete handler function instance is
   // usable as an e(vent) handler.
   return handler => e =>
-    handler({ getById, ctx, name, signal, signals, id, kind, e, plugins });
+    handler({
+      getById,
+      ctx,
+      name,
+      signal,
+      signals,
+      nodes,
+      id,
+      kind,
+      e,
+      plugins
+    });
 };
 
 // <sig-nal> class
@@ -123,6 +143,12 @@ class SigNal extends HTMLElement {
   };
 
   // convenience methods to be used in hydration descriptions:
+
+  static unhidden = (node, deep = true) => {
+    let clone = node.cloneNode(deep);
+    clone.hidden = false;
+    return clone;
+  };
 
   static index =
     (attrs, props = attrs.map(attr => attr.slice(1))) =>
@@ -234,7 +260,7 @@ class SigNal extends HTMLElement {
     if (this.#GA('hydrate') !== null) {
       // yes, evaluate it
       new Function(
-        `let{hydrate,render,rerender,renderWith,index,plugin,computed}=customElements.get('sig-nal');return hydrate(${textContent})`
+        `let{hydrate,render,rerender,renderWith,index,plugin,computed,unhidden}=customElements.get('sig-nal');return hydrate(${textContent})`
       )()(this);
       // remove the text child node
       textContent = '';
