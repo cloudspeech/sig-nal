@@ -11,16 +11,17 @@
     <input id="newtask" placeholder="New task" />
     <button id="addtask">Add Task</button>
     <ul id="list">
-      <li id="li" hidden></li>
+      <template id="item">
+        <li>${text}</li>
+      </template>
     </ul>
     <!-- prettier-ignore -->
     <sig-nal new="todos" hydrate>
-     {
-       "newtask": {"@input":       ({signal, e:{target:{value}}}) => (signal.value = value)},
-       "addtask": {"@click":       ({nodes:{newtask, list, li}}) => {
-                                    list.append(clone(li));
-                                    newtask.value = ''; }},
-       "li":      {".textContent": rerender}
+      { "addtask": {"@click": ({signal, nodes:{newtask, item}}) => {
+                              signal.value = ['beforeend', html(item, {text: newtask.value})];
+                              newtask.value = ''; }
+                   },
+        "list":    {":insertAdjacentHTML": rerender}
      }
     </sig-nal>
   </body>

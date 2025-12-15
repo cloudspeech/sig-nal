@@ -145,11 +145,24 @@ class SigNal extends HTMLElement {
 
   // convenience methods to be used in hydration descriptions:
 
-  static clone = (node, fixups = ['hidden', false], deep = true) => {
-    let _clone = node.cloneNode(deep);
-    for (let i = 0, n = fixups.length; i < n; i += 2)
-      _clone[fixups[i]] = fixups[i + 1];
-    return _clone;
+  static html = (node, placeholders, lazy) => {
+    // is the (DOM) node a <template>?
+    if (node instanceof HTMLTemplateElement) {
+      // yes, get its actual content
+      node = node.content.firstElementChild;
+    }
+    // make a string of comma-separated placeholder names/keys
+    let commaSeparatedPlaceholders = Object.keys(placeholders).join(',');
+    // construct a function that maps the placeholder values
+    // to a template literal made from the node's string representation (outerHTML)
+    // (assumed to exhibit the placeholder names, in-order)
+    let fun = new Function(
+      commaSeparatedPlaceholders,
+      'return \`' + node.outerHTML + '\`'
+    );
+    // return the function itself, if lazy evaluation is desired, otherwise return
+    // the *result* of eagerly invoking the function with the placeholder values, in-order
+    return lazy ? fun : fun(...Object.values(placeholders));
   };
 
   static index =
@@ -180,11 +193,19 @@ class SigNal extends HTMLElement {
   static render =
     ({ signal, getById, id, name, kind }) =>
     (value = signal.value, domNode = getById(id)) => {
-      value = typeof value === 'function' ? value() : value;
-      if (/^dataset\.\S+/.test(name)) {
-        domNode.dataset[name.slice(8)] = value;
-      } else if (value !== null) {
-        kind === 4 ? domNode[name](value) : (domNode[name] = value);
+      // evaluate function values
+      if (typeof value === 'function') value = value();
+      // special case: dataset.<name> setter
+      if (/^dataset\.\S+/.test(name))
+        return (domNode.dataset[name.slice(8)] = value);
+      // bail on null values
+      if (value === null) return;
+      // plain property setter
+      if (kind === 1) return (domNode[name] = value);
+      // multi-argument method invoker
+      if (kind === 4) {
+        if (!Array.isArray(value)) value = [value];
+        domNode[name](...value);
       }
     };
 
@@ -262,7 +283,7 @@ class SigNal extends HTMLElement {
     if (this.#GA('hydrate') !== null) {
       // yes, evaluate it
       new Function(
-        `let{hydrate,render,rerender,renderWith,index,plugin,computed,clone}=customElements.get('sig-nal');return hydrate(${textContent})`
+        `let{hydrate,render,rerender,renderWith,index,plugin,computed,html}=customElements.get('sig-nal');return hydrate(${textContent})`
       )()(this);
       // remove the text child node
       textContent = '';
