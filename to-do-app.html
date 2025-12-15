@@ -18,10 +18,31 @@
      {
        "newtask": {"@input":       ({signal, e:{target:{value}}}) => (signal.value = value)},
        "addtask": {"@click":       ({nodes:{newtask, list, li}}) => {
-                                    list.append(unhidden(li));
+                                    list.append(clone(li));
                                     newtask.value = ''; }},
        "li":      {".textContent": rerender}
      }
     </sig-nal>
   </body>
 </html>
+<!-- COMPARES *VERY* FAVOURABLY TO ALPINE.JS:
+    <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To-Do App</title>
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@2.8.2/dist/alpine.min.js" defer></script>
+</head>
+<body x-data="{ tasks: [], newTask: '' }">
+    <h1>To-Do App</h1>
+    <input x-model="newTask" placeholder="New task" />
+    <button @click="tasks.push(newTask); newTask = ''">Add Task</button>
+    <ul>
+        <template x-for="(task, index) in tasks" :key="index">
+            <li @click="tasks.splice(index, 1)" x-text="task"></li>
+        </template>
+    </ul>
+</body>
+</html>
+-->

@@ -29,7 +29,7 @@ let convert = (stringValue, type) =>
 
 // construct a a context for handlers in hydration descriptions
 // (name is the *attribute* name)
-let context = (self, id, specialAttribute, kind, name, domNode) => {
+let context = (self, id, specialAttribute, kind, name, domNode, nodes) => {
   // self is a sig-nal *instance*:
   // extract interesting public methods from it
   let { getById, ctx } = self;
@@ -45,15 +45,6 @@ let context = (self, id, specialAttribute, kind, name, domNode) => {
   // (falling back to the signal instance's name if it registered a
   // name with <sig-nal new="theName" ...>)
   let signal = signals && signals[signalNameFromSpecialAttribute || self.name];
-  // install a convenience proxy to get (DOM) nodes by id
-  let nodes = new Proxy(
-    {},
-    {
-      get(_, id) {
-        return getById(id);
-      }
-    }
-  );
   // now that we have dealt with the special attribute, schedule its removal
   if (signalNameFromSpecialAttribute)
     queueMicrotask(() => domNode.removeAttribute(specialAttribute));
@@ -98,6 +89,16 @@ class SigNal extends HTMLElement {
   // using the named sig-nal instance 'self'
 
   static hydrate = description => self => {
+    let { getById, root } = self;
+    // install a convenience proxy to get (DOM) nodes by id
+    let nodes = new Proxy(
+      {},
+      {
+        get(_, id) {
+          return getById(id);
+        }
+      }
+    );
     // for all 'id' values in outermost layer of description:
     for (let id in description) {
       // get the special attributes on the node referenced by 'id'
@@ -120,7 +121,6 @@ class SigNal extends HTMLElement {
         if (kind < 0) continue;
         // construct a callback function by passing the handler to a context
         // given an 'id' value, get its DOM node
-        let { getById, root } = self;
         let domNode = id ? getById(id) : root;
         let callback = context(
           self,
@@ -128,7 +128,8 @@ class SigNal extends HTMLElement {
           specialAttribute,
           kind,
           attributeName,
-          domNode
+          domNode,
+          nodes
         )(handler);
         // if not the event listener kind
         if (kind) {
@@ -144,10 +145,11 @@ class SigNal extends HTMLElement {
 
   // convenience methods to be used in hydration descriptions:
 
-  static unhidden = (node, deep = true) => {
-    let clone = node.cloneNode(deep);
-    clone.hidden = false;
-    return clone;
+  static clone = (node, fixups = ['hidden', false], deep = true) => {
+    let _clone = node.cloneNode(deep);
+    for (let i = 0, n = fixups.length; i < n; i += 2)
+      _clone[fixups[i]] = fixups[i + 1];
+    return _clone;
   };
 
   static index =
@@ -260,7 +262,7 @@ class SigNal extends HTMLElement {
     if (this.#GA('hydrate') !== null) {
       // yes, evaluate it
       new Function(
-        `let{hydrate,render,rerender,renderWith,index,plugin,computed,unhidden}=customElements.get('sig-nal');return hydrate(${textContent})`
+        `let{hydrate,render,rerender,renderWith,index,plugin,computed,clone}=customElements.get('sig-nal');return hydrate(${textContent})`
       )()(this);
       // remove the text child node
       textContent = '';
