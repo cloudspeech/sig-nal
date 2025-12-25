@@ -3,6 +3,8 @@ import { signal, computed } from './turbo-signal.js';
 
 // module globals
 
+let d = document;
+
 // an initializable WeakMap
 
 class initWeakMap extends WeakMap {
@@ -58,12 +60,38 @@ let context = (self, id, specialAttribute, kind, name, domNode, nodes) => {
       name,
       signal,
       signals,
+      domNode,
       nodes,
       id,
       kind,
       e,
       plugins
     });
+};
+
+// kinds: @ = 0, . = 1, ? = 2, ! = 3, : = 4
+let domEffect = (value, name, domNode, kind) => {
+  // evaluate function values
+  if (typeof value === 'function') value = value();
+  // special case: dataset.<name> setter
+  if (/^dataset\.\S+$/.test(name))
+    return (domNode.dataset[name.slice(8)] = value);
+  // bail on null values
+  if (value === null) return;
+  switch (kind) {
+    case 1:
+      return (
+        /* property not already set to value? */ domNode[name] !== value &&
+        /* Then set it */ (domNode[name] = value)
+      );
+    case 2:
+      return domNode[value ? 'setAttribute' : 'removeAttribute'](name, '');
+    case 3:
+      return domNode.setAttribute(name, value);
+    case 4:
+      if (!Array.isArray(value)) value = [value];
+      domNode[name](...value);
+  }
 };
 
 // <sig-nal> class
@@ -131,12 +159,12 @@ class SigNal extends HTMLElement {
           domNode,
           nodes
         )(handler);
-        // if not the event listener kind
+        // if not the event-listener kind
         if (kind) {
           // execute callback right away
           callback();
         } else {
-          // register event listener using callback
+          // otherwise register event listener using callback
           domNode.addEventListener(attributeName, callback, options);
         }
       }
@@ -188,26 +216,26 @@ class SigNal extends HTMLElement {
       }
     };
 
+  static object =
+    ({ getById, ctx: { name }, signal }) =>
+    (model = signal.value) => {
+      for (let i = 0, n = model?.length | 0, item, node, value; i < n; i++) {
+        item = model[i];
+        node = getById(name + i);
+        if (item === undefined || !node) continue;
+        for (let property in item) {
+          value = item[property];
+          domEffect(value, property, node, 1);
+        }
+      }
+    };
+
   // default DOM renderer: given a context, produce a signal.effect callback that
   // knows how to render familiar DOM property/method updates
   static render =
     ({ signal, getById, id, name, kind }) =>
-    (value = signal.value, domNode = getById(id)) => {
-      // evaluate function values
-      if (typeof value === 'function') value = value();
-      // special case: dataset.<name> setter
-      if (/^dataset\.\S+/.test(name))
-        return (domNode.dataset[name.slice(8)] = value);
-      // bail on null values
-      if (value === null) return;
-      // plain property setter
-      if (kind === 1) return (domNode[name] = value);
-      // multi-argument method invoker
-      if (kind === 4) {
-        if (!Array.isArray(value)) value = [value];
-        domNode[name](...value);
-      }
-    };
+    (value = signal.value, domNode = getById(id)) =>
+      domEffect(value, name, domNode, kind);
 
   // given a callback, produce a function mapping context parameter to a
   // signal.effect registration with the callback bound to said context.
@@ -234,16 +262,15 @@ class SigNal extends HTMLElement {
     let type = this.#GA('type');
     let [defaultAttribute, defaultId] = (this.#GA('default') || '').split('#');
 
-    let { id, textContent } = this;
-
+    let { id } = this;
     // determine the fastest id-getter function, taking into account whether
     // we're inside ShadowDOM or not
     this.getById = isShadowDOM
       ? id => root.querySelector('#' + id)
-      : id => document.getElementById(id); // fastest
+      : id => d.getElementById(id); // fastest
     // bundle up attributes of this instance (some derived,
     // some directly cached), to later serve as callback context
-    this.ctx = { root, scope, name, type, id, description: textContent };
+    this.ctx = { root, scope, name, type, id };
 
     // are we asked to create a signal instance?
     if (isSignal) {
@@ -260,7 +287,7 @@ class SigNal extends HTMLElement {
     // our root with 'id' values if they are missing?
     if (this.#GA('index') !== null) {
       // yes, set up
-      let indexWalker = document.createTreeWalker(
+      let indexWalker = d.createTreeWalker(
         root,
         1 // NodeFilter.SHOW_ELEMENT
       );
@@ -279,23 +306,35 @@ class SigNal extends HTMLElement {
       }
     }
 
-    // do we have an inlined-as-text-child-node hydration description?
+    // do we need to evaluate an inline hydration description?
     if (this.#GA('hydrate') !== null) {
-      // yes, evaluate it
-      new Function(
-        `let{hydrate,render,rerender,renderWith,index,plugin,computed,html}=customElements.get('sig-nal');return hydrate(${textContent})`
-      )()(this);
-      // remove the text child node
-      textContent = '';
-      // send an initial event
-      root.dispatchEvent(new Event('init'));
-    }
-
-    // unless the presence of some CSS class(es) rescues it...
-    if (!this.className) {
-      // ... this element will be replaced by its child text
-      // (which we can do because we rescued all its parameters into closures living inside hydrate)
-      this.replaceWith(textContent);
+      // yes, first define a helper function to evaluate it
+      let hydrateInline = () => {
+        // is our inline hydration description fully constructed in DOM,
+        // using a heuristic test of it ending in a curly right bracket?
+        let textContent = this.textContent.trim();
+        let implausibleHydrationDescription =
+          textContent.charCodeAt(textContent.length - 1) !== 125; // '}'
+        if (implausibleHydrationDescription) {
+          // no, so wait for the next frame and repeat
+          return requestAnimationFrame(hydrateInline);
+        }
+        // yes, thus we can use our own text content as inline hydration description -
+        // evaluate a carefully constructed function with the text content as parameter!
+        new Function(
+          `let{hydrate,render,rerender,renderWith,index,object,plugin,computed,html}=customElements.get('sig-nal');return hydrate(${textContent})`
+        )()(this);
+        // send an init(ial) event to our root node - if there is an {": {"@init": initHandler} } in the hydration
+        // description, the handler will be invoked synchronously and can perform arbitrary initialization work
+        root.dispatchEvent(new Event('init'));
+        // unless the presence of some CSS class(es) rescues it...
+        if (!this.className) {
+          // ... commit harakiri
+          this.remove();
+        }
+      };
+      // execute our helper function
+      hydrateInline();
     }
   } // end constructor
 } // end class SigNal

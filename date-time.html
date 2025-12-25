@@ -2,7 +2,7 @@
 <html lang="en-US" style="height: 100%">
   <head>
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <meta name="description" content="sig-nal counter-classmap demo" />
+    <meta name="description" content="sig-nal date-time demo" />
     <title>sig-nal | date-time demo</title>
     <script type="module" src="./dist/index.js"></script>
   </head>
@@ -45,23 +45,23 @@
         </style>
         <table>
           <tr>
-            <td id="datetime0" class="weekday" .textContent>Freitag</td>
-            <td id="datetime2" class="day" .textContent>10</td>
-            <td id="datetime4" class="month" .textContent>October</td>
-            <td id="datetime6" class="year" .textContent>2025</td>
-            <td id="datetime8" class="hour" .textContent>22</td>
-            <td id="datetime10" class="minute" .textContent>15</td>
-            <td id="datetime12" .textContent>15</td>
-            <td id="datetime14" .textContent>MESZ</td>
+            <td id="datetime0" class="weekday">Freitag</td>
+            <td id="datetime2" class="day">10</td>
+            <td id="datetime4" class="month">October</td>
+            <td id="datetime6" class="year">2025</td>
+            <td id="datetime8" class="hour">22</td>
+            <td id="datetime10" class="minute">15</td>
+            <td id="datetime12">15</td>
+            <td id="datetime14">MESZ</td>
           </tr>
         </table>
         <!-- prettier-ignore -->
         <sig-nal new="datetime" for="previousElementSibling" hydrate>
-      {"":{"@init": ({signal}) => setInterval(() => (signal.value = Intl.DateTimeFormat('de-CH', { dateStyle: 'full', timeStyle: 'long' }).formatToParts(Date.now()).map(({value}) => value)), 1000),
-          ".firstElementChild": renderWith(index(['.textContent']), false)
+          {"": {"@init": ({signal}) => setInterval(() => (signal.value = Intl.DateTimeFormat('de-CH', { dateStyle: 'full', timeStyle: 'long'}).formatToParts(Date.now()).map(({value}) => ({textContent: value}))), 1000),
+                ".firstElementChild": renderWith(object, false)
+               }
           }
-      }
-    </sig-nal>
+        </sig-nal>
       </template>
     </digital-clock>
   </body>
