@@ -3,7 +3,7 @@ import { signal, computed } from './turbo-signal.js';
 
 // module globals
 
-let d = document;
+let _document = document; // improve minification
 
 /**
  * A WeakMap that initializes values on first access
@@ -110,7 +110,9 @@ let domEffect = (value, name, domNode, kind) => {
   switch (kind) {
     case 1:
       return (
-        /* property not already set to value? */ domNode[name] !== value &&
+        /* property-value-in-DOM
+           not already identical
+           to value? */ domNode[name] !== value &&
         /* Then set it */ (domNode[name] = value)
       );
     case 2:
@@ -126,7 +128,7 @@ let domEffect = (value, name, domNode, kind) => {
 // <sig-nal> class
 class SigNal extends HTMLElement {
   // private class fields
-  #GA = name => this.getAttribute(name); // shorthand method
+  #getAttribute = name => this.getAttribute(name); // shorthand method
 
   // static public class fields
 
@@ -285,14 +287,11 @@ class SigNal extends HTMLElement {
   static object =
     ({ getById, ctx: { name }, signal }) =>
     (model = signal.value) => {
-      for (let i = 0, n = model?.length | 0, item, node, value; i < n; i++) {
+      for (let i = 0, n = model?.length | 0, item, node; i < n; i++) {
         item = model[i];
         node = getById(name + i);
         if (item === undefined || !node) continue;
-        for (let property in item) {
-          value = item[property];
-          domEffect(value, property, node, 1);
-        }
+        for (let property in item) domEffect(item[property], property, node, 1);
       }
     };
 
@@ -332,21 +331,26 @@ class SigNal extends HTMLElement {
     super();
     // cache lots of attribute values determining the
     // behaviour of this <sig-nal> instance
-    let root = (this.root = this[this.#GA('for') || 'parentNode']);
-    let scope = this.#GA('scope');
+    let root = (this.root = this[this.#getAttribute('for') || 'parentNode']);
+    let scope = this.#getAttribute('scope');
     scope = scope ? this.closest(scope) : this.getRootNode();
     let isShadowDOM = scope instanceof ShadowRoot;
-    let isSignal = this.#GA('new');
-    let name = (this.name = isSignal) || this.#GA('ref') || crypto.randomUUID();
-    let type = this.#GA('type');
-    let [defaultAttribute, defaultId] = (this.#GA('default') || '').split('#');
+    let isSignal = this.#getAttribute('new');
+    let name =
+      (this.name = isSignal) ||
+      this.#getAttribute('ref') ||
+      crypto.randomUUID();
+    let type = this.#getAttribute('type');
+    let [defaultAttribute, defaultId] = (
+      this.#getAttribute('default') || ''
+    ).split('#');
 
     let { id } = this;
     // determine the fastest id-getter function, taking into account whether
     // we're inside ShadowDOM or not
     this.getById = isShadowDOM
       ? id => root.querySelector('#' + id)
-      : id => d.getElementById(id); // fastest
+      : id => _document.getElementById(id); // fastest
     // bundle up attributes of this instance (some derived,
     // some directly cached), to later serve as callback context
     this.ctx = { root, scope, name, type, id };
@@ -356,7 +360,7 @@ class SigNal extends HTMLElement {
       // yes, determine its initial value-as-string
       let value = defaultAttribute
         ? this.getById(defaultId)[defaultAttribute.slice(1)]
-        : this.#GA('value');
+        : this.#getAttribute('value');
       // then create and enter it into a map under our current scope
       // with type-appropriate value conversion
       signalMap.use(scope)[name] = signal(convert(value, type));
@@ -364,9 +368,9 @@ class SigNal extends HTMLElement {
 
     // are we asked to automatically enrich the DOM tree under
     // our root with 'id' values if they are missing?
-    if (this.#GA('index') !== null) {
+    if (this.#getAttribute('index') !== null) {
       // yes, set up
-      let indexWalker = d.createTreeWalker(
+      let indexWalker = _document.createTreeWalker(
         root,
         1 // NodeFilter.SHOW_ELEMENT
       );
@@ -383,7 +387,7 @@ class SigNal extends HTMLElement {
     }
 
     // do we need to evaluate an inline hydration description?
-    if (this.#GA('hydrate') !== null) {
+    if (this.#getAttribute('hydrate') !== null) {
       // yes, first define a helper function to evaluate it
       let hydrateInline = () => {
         // is our inline hydration description fully constructed in DOM,

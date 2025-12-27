@@ -123,22 +123,22 @@
         </style>
         <table>
           <tr>
-            <td id="datetime0" class="weekday" .textContent>Freitag</td>
-            <td id="datetime2" class="day" .textContent>10</td>
-            <td id="datetime4" class="month" .textContent>October</td>
-            <td id="datetime6" class="year" .textContent>2025</td>
-            <td id="datetime8" class="hour" .textContent>22</td>
-            <td id="datetime10" class="minute" .textContent>15</td>
-            <td id="datetime12" .textContent>15</td>
-            <td id="datetime14" .textContent>MESZ</td>
+            <td id="datetime0" class="weekday">Freitag</td>
+            <td id="datetime2" class="day">10</td>
+            <td id="datetime4" class="month">October</td>
+            <td id="datetime6" class="year">2025</td>
+            <td id="datetime8" class="hour">22</td>
+            <td id="datetime10" class="minute">15</td>
+            <td id="datetime12">15</td>
+            <td id="datetime14">MESZ</td>
           </tr>
         </table>
         <!-- prettier-ignore -->
-        <sig-nal new="datetime" for="previousElementSibling" hydrate hidden>
-          {"": {"@init": ({signal}) => setInterval(() => (signal.value = Intl.DateTimeFormat('de-CH', { dateStyle: 'full', timeStyle: 'long' }).formatToParts(Date.now()).map(({value}) => value)), 1000),
-                ".firstElementChild": renderWith(index(['.textContent']), false)
-	       }
-	  }
+        <sig-nal new="datetime" for="previousElementSibling" hydrate>
+          {"": {"@init": ({signal}) => setInterval(() => (signal.value = Intl.DateTimeFormat('de-CH', { dateStyle: 'full', timeStyle: 'long'}).formatToParts(Date.now()).map(({value}) => ({textContent: value}))), 1000),
+                ".firstElementChild": renderWith(object, false)
+               }
+          }
         </sig-nal>
       </template>
     </digital-clock>
@@ -207,7 +207,7 @@
           <part-ial id="partial"></part-ial>
           <!-- prettier-ignore -->
           <sig-nal new="partial" hydrate>
-            {   more: {"@click": ({getById, id, signal}) => (getById(id).disabled = true) && (signal.value = './accordion.html')},
+            {   more: {"@click": ({domNode:button, signal}) => (button.disabled = true) && (signal.value = './accordion.html')},
              partial: {".src": rerender}
             }
           </sig-nal>
