@@ -50,7 +50,8 @@
         <!-- prettier-ignore -->
         <sig-nal new="messages" hydrate>
           {"": { "@init": ({signal}) => {
-                 signal.value = Array(10);
+                 let last10 = [{}, {}, {}, {}, {}, {}, {}, {}, {}, {}];
+                 signal.value = last10;
                  let ws = new WebSocket('wss://jetstream2.us-west.bsky.network/subscribe?wantedCollections=app.bsky.feed.post');
                  ws.onmessage = event => {
                      let {kind, commit} = JSON.parse(event.data);
@@ -58,9 +59,8 @@
                      let message = commit.record.text.replaceAll(/\n/g, ' ');
                      let filter = location.search.slice(1);
                      if (filter && !message.includes(filter)) return;
-                     let last10 = signal.value;
-                     last10.push({textContent: message});
-                     last10.shift();
+                     for(let i = 1; i < 10; i++) last10[i-1].textContent = last10[i].textContent;
+                     last10[9].textContent = message;
                      signal.value = last10;
                    };
                  },
