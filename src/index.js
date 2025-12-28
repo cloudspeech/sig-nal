@@ -57,21 +57,11 @@ let context = (self, id, specialAttribute, kind, name, domNode, nodes) => {
   // self is a sig-nal *instance*:
   // extract interesting public methods from it
   let { getById, ctx } = self;
-  // try to get the signal name from the value of the special attribute *in the DOM*
-  // (e.g. 'counter' from .textContent="counter")
-  // This is useful to disambiguate cases when *multiple* sig-nal instances
-  // overlap in scope, and the direct reference to the particular signal meant here
-  // (rather than the roundabout signals.theNameIMeanHere) is desired
-  let signalNameFromSpecialAttribute = domNode.getAttribute(specialAttribute);
   // get the map of all signals registered in the present scope
   let signals = signalMap.get(ctx.scope);
-  // get the particular signal that the special attribute references
-  // (falling back to the signal instance's name if it registered a
-  // name with <sig-nal new="theName" ...>)
-  let signal = signals && signals[signalNameFromSpecialAttribute || self.name];
-  // now that we have dealt with the special attribute, schedule its removal
-  if (signalNameFromSpecialAttribute)
-    queueMicrotask(() => domNode.removeAttribute(specialAttribute));
+  // get the particular signal via the signal instance's name,
+  // cf. <sig-nal new="theName" ...>)
+  let signal = signals && signals[self.name];
   // return a handler function factory that gets the context info
   // assembled above. A concrete handler function instance is
   // usable as an e(vent) handler.
@@ -248,35 +238,6 @@ class SigNal extends HTMLElement {
   };
 
   /**
-   * Create a renderer for array-based models that updates DOM elements by index
-   * @param {string[]} attrs - Array of attribute names to check (e.g., ['@textContent', '@value'])
-   * @param {string[]} [props] - Array of property names corresponding to attributes (defaults to attrs without '@')
-   * @returns {Function} A function that accepts context and returns a renderer function
-   */
-  static index =
-    (attrs, props = attrs.map(attr => attr.slice(1))) =>
-    ({ getById, ctx: { name }, signal }) =>
-    (model = signal.value) => {
-      for (
-        let i = 0, n = model?.length | 0, item, node, isArray, j;
-        i < n;
-        i++
-      ) {
-        item = model[i];
-        isArray = Array.isArray(item);
-        node = getById(name + i);
-        if (item === undefined || !node) continue;
-        j = 0;
-        for (let attr of attrs) {
-          if (node.hasAttribute(attr)) {
-            node[props[j]] = isArray ? item[j] : item;
-          }
-          j++;
-        }
-      }
-    };
-
-  /**
    * Create a renderer for object-based models that updates DOM element properties
    * @param {Object} context - The context object containing getById, name, and signal
    * @param {Function} context.getById - Function to get elements by ID
@@ -291,7 +252,8 @@ class SigNal extends HTMLElement {
         item = model[i];
         node = getById(name + i);
         if (item === undefined || !node) continue;
-        for (let property in item) domEffect(item[property], property, node, 1);
+        for (let property in item)
+          domEffect(item[property], property, node, /* kind: .property */ 1);
       }
     };
 
@@ -393,16 +355,16 @@ class SigNal extends HTMLElement {
         // is our inline hydration description fully constructed in DOM,
         // using a heuristic test of it ending in a curly right bracket?
         let textContent = this.textContent.trim();
-        let implausibleHydrationDescription =
+        let incompleteHydrationDescription =
           textContent.charCodeAt(textContent.length - 1) !== 125; // '}'
-        if (implausibleHydrationDescription) {
+        if (incompleteHydrationDescription) {
           // no, so wait for the next frame and repeat
           return requestAnimationFrame(hydrateInline);
         }
         // yes, thus we can use our own text content as inline hydration description -
         // evaluate a carefully constructed function with the text content as parameter!
         new Function(
-          `let{hydrate,render,rerender,renderWith,index,object,plugin,computed,html}=customElements.get('sig-nal');return hydrate(${textContent})`
+          `let{hydrate,render,rerender,renderWith,object,plugin,computed,html}=customElements.get('sig-nal');return hydrate(${textContent})`
         )()(this);
         // send an init(ial) event to our root node - if there is an {": {"@init": initHandler} } in the hydration
         // description, the handler will be invoked synchronously and can perform arbitrary initialization work
