@@ -36,27 +36,37 @@
       <p>showing the last 10 messages</p>
       <div>
         <ul>
-          <li id="messages0" .textContent>loading...</li>
-          <li id="messages1" .textContent>loading...</li>
-          <li id="messages2" .textContent>loading...</li>
-          <li id="messages3" .textContent>loading...</li>
-          <li id="messages4" .textContent>loading...</li>
-          <li id="messages5" .textContent>loading...</li>
-          <li id="messages6" .textContent>loading...</li>
-          <li id="messages7" .textContent>loading...</li>
-          <li id="messages8" .textContent>loading...</li>
-          <li id="messages9" .textContent>loading...</li>
+          <li id="messages0">loading...</li>
+          <li id="messages1">loading...</li>
+          <li id="messages2">loading...</li>
+          <li id="messages3">loading...</li>
+          <li id="messages4">loading...</li>
+          <li id="messages5">loading...</li>
+          <li id="messages6">loading...</li>
+          <li id="messages7">loading...</li>
+          <li id="messages8">loading...</li>
+          <li id="messages9">loading...</li>
         </ul>
+        <!-- prettier-ignore -->
         <sig-nal new="messages" hydrate>
-          {"": { "@init": ({signal}) => { signal.value = Array(10); let ws = new
-          WebSocket('wss://jetstream2.us-west.bsky.network/subscribe?wantedCollections=app.bsky.feed.post');
-          ws.onmessage = event => { let {kind, commit} = JSON.parse(event.data);
-          if (kind !== 'commit' || commit.operation !== 'create') return; let
-          message = commit.record.text.replaceAll(/\n/g, ' '); let filter =
-          location.search.slice(1); if (filter && !message.includes(filter))
-          return; let last10 = signal.value; last10.push(message);
-          last10.shift(); signal.value = last10; }; }, ".firstElementChild":
-          renderWith(index(['.textContent']),false) }}
+          {"": { "@init": ({signal}) => {
+                 signal.value = Array(10);
+                 let ws = new WebSocket('wss://jetstream2.us-west.bsky.network/subscribe?wantedCollections=app.bsky.feed.post');
+                 ws.onmessage = event => {
+                     let {kind, commit} = JSON.parse(event.data);
+                     if (kind !== 'commit' || commit.operation !== 'create') return;
+                     let message = commit.record.text.replaceAll(/\n/g, ' ');
+                     let filter = location.search.slice(1);
+                     if (filter && !message.includes(filter)) return;
+                     let last10 = signal.value;
+                     last10.push({textContent: message});
+                     last10.shift();
+                     signal.value = last10;
+                   };
+                 },
+                 ".firstElementChild": renderWith(object,false)
+              }
+          }
         </sig-nal>
       </div>
     </template>
