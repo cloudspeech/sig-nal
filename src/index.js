@@ -3,7 +3,9 @@ import { signal, computed } from './turbo-signal.js';
 
 // module globals
 
-let _document = document; // improve minification
+let _document = document, // improve minification
+  SIGNAL = 'sig-nal',
+  REPLACE = { '&': 'amp', '<': 'lt', '"': 'quot', "'": 'apos' };
 
 /**
  * A WeakMap that initializes values on first access
@@ -114,6 +116,11 @@ let domEffect = (value, name, domNode, kind) => {
       domNode[name](...value);
   }
 };
+
+let policy = trustedTypes.createPolicy(SIGNAL, {
+  createHTML: string =>
+    string.replace(/[&<"']/g, match => `&${REPLACE[match]};`)
+});
 
 // <sig-nal> class
 class SigNal extends HTMLElement {
@@ -236,6 +243,8 @@ class SigNal extends HTMLElement {
     // the *result* of eagerly invoking the function with the placeholder values, in-order
     return lazy ? fun : fun(...Object.values(placeholders));
   };
+
+  static sane = string => policy.createHTML(string);
 
   /**
    * Create a renderer for object-based models that updates DOM element properties
@@ -364,7 +373,7 @@ class SigNal extends HTMLElement {
         // yes, thus we can use our own text content as inline hydration description -
         // evaluate a carefully constructed function with the text content as parameter!
         new Function(
-          `let{hydrate,render,rerender,renderWith,object,plugin,computed,html}=customElements.get('sig-nal');return hydrate(${textContent})`
+          `let{hydrate,render,rerender,renderWith,object,plugin,computed,html,sane}=customElements.get('${SIGNAL}');return hydrate(${textContent})`
         )()(this);
         // send an init(ial) event to our root node - if there is an {": {"@init": initHandler} } in the hydration
         // description, the handler will be invoked synchronously and can perform arbitrary initialization work
@@ -382,4 +391,4 @@ class SigNal extends HTMLElement {
 } // end class SigNal
 
 // register custom element
-customElements.define('sig-nal', SigNal);
+customElements.define(SIGNAL, SigNal);

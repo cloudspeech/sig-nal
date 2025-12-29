@@ -18,7 +18,7 @@
     <!-- prettier-ignore -->
     <sig-nal new="todos" hydrate>
       { "addtask": {"@click": ({signal, nodes:{newtask, item}}) => {
-                              signal.value = ['beforeend', html(item, {text: newtask.value})];
+                              signal.value = ['beforeend', html(item, {text: sane(newtask.value)})];
                               newtask.value = ''; }
                    },
         "list":    {":insertAdjacentHTML": rerender}
