@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en-US">
+  <head>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="description" content="sig-nal countdown demo" />
+    <title>sig-nal | countdown demo</title>
+    <script type="module" src="./src/index.js"></script>
+  </head>
+  <body style="background: #fffaf0">
+    <count-down style="margin: 5rem auto; box-shadow: 1px 2px 18px 4px #ddd">
+      <template shadowrootmode="open">
+        <link rel="stylesheet" href="./countdown.css" />
+        <table>
+          <thead>
+            <tr>
+              <th>ddd</th>
+              <th>hh</th>
+              <th>mm</th>
+              <th>ss</th>
+              <th>hhh</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr id="countdown">
+              <td id="cd4" class="days">000</td>
+              <td id="cd3" class="hours">00</td>
+              <td id="cd2" class="minutes">02</td>
+              <td id="cd1" class="seconds">00</td>
+              <td id="cd0" class="hundredths">000</td>
+            </tr>
+          </tbody>
+        </table>
+        <!-- prettier-ignore -->
+        <sig-nal new="cd" for="previousElementSibling" hydrate>
+          {"": {"@init": ({signal, nodes:{countdown}}) => import('/countdown.js').then(({start}) => start(signal, countdown)),
+                ".firstElementChild": renderWith(object, false)
+               },
+           "countdown": {"@countdownstopped": ({signals:{fw}}) => { fw.value = 0; setTimeout(() => (fw.value = 1), 30*1e3); }
+                        }
+          }
+        </sig-nal>
+        <div id="fireworks" class="pyro" hidden>
+          <div class="before"></div>
+          <div class="after"></div>
+        </div>
+        <!-- prettier-ignore -->
+        <sig-nal new="fw" type="number" value="1" hydrate>
+        {"fireworks": {".hidden": rerender}}
+        </sig-nal>
+      </template>
+    </count-down>
+  </body>
+</html>
