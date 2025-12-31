@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="en-US">
+  <head>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="description" content="sig-nal form demo" />
+    <title>sig-nal | form demo</title>
+    <script type="module" src="./src/index.js"></script>
+    <style>
+      body {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        justify-content: center;
+        place-items: center;
+        margin: 0;
+        width: 100vw;
+        height: 100vh;
+        background: #ecf0f396;
+        overflow: hidden;
+      }
+    </style>
+  </head>
+  <body>
+    <template shadowrootmode="open">
+      <style>
+        * {
+          font-family: sans-serif;
+        }
+
+        input {
+          caret-color: red;
+        }
+
+        .container {
+          position: relative;
+          width: clamp(150px, 100%, 350px);
+          height: fit-content;
+          border-radius: 20px;
+          padding: 40px;
+          box-sizing: border-box;
+          background: #ecf0f3;
+          box-shadow:
+            14px 14px 20px #cbced1,
+            -14px -14px 20px white;
+        }
+
+        .title {
+          margin-top: 12px;
+          font-weight: 900;
+          font-size: 1.8rem;
+          color: #1da1f2;
+          letter-spacing: 1px;
+          text-align: center;
+          width: 100%;
+        }
+
+        .inputs {
+          text-align: left;
+          margin-top: 30px;
+          color: red;
+        }
+
+        label,
+        input,
+        textarea,
+        button,
+        select {
+          display: block;
+          width: 100%;
+          padding: 0;
+          border: none;
+          outline: none;
+          box-sizing: border-box;
+          color: inherit;
+        }
+
+        label {
+          position: relative;
+          margin: 12px 0 4px 0;
+        }
+
+        input::placeholder,
+        textarea::placeholder {
+          color: gray;
+        }
+
+        input,
+        textarea,
+        select {
+          background: #ecf0f3;
+          padding: 10px;
+          padding-left: 20px;
+          height: 50px;
+          font-size: 14px;
+          border-radius: 50px;
+          box-shadow:
+            inset 6px 6px 6px #cbced1,
+            inset -6px -6px 6px white;
+        }
+
+        button {
+          color: white;
+          margin-top: 20px;
+          background: #1da1f2;
+          height: 40px;
+          border-radius: 20px;
+          cursor: pointer;
+          font-weight: 900;
+          box-shadow:
+            6px 6px 6px #cbced1,
+            -6px -6px 6px white;
+          transition: 0.5s;
+        }
+
+        button:hover {
+          box-shadow: none;
+          letter-spacing: 5px;
+        }
+
+        h1 {
+          position: absolute;
+          top: 0;
+          left: 0;
+        }
+
+        span {
+          display: block;
+          margin-bottom: 12px;
+          font-weight: 700;
+          color: #333;
+        }
+
+        form > span {
+          margin: 24px 0;
+          font-weight: 100;
+        }
+
+        .custom-select select {
+          appearance: none;
+          color: red;
+          cursor: pointer;
+        }
+
+        .custom-select::before,
+        .custom-select::after {
+          --size: 0.3rem;
+          position: absolute;
+          content: '';
+          right: 12px;
+          pointer-events: none;
+        }
+
+        .custom-select::before {
+          border-left: var(--size) solid transparent;
+          border-right: var(--size) solid transparent;
+          border-bottom: var(--size) solid red;
+          top: 50px;
+        }
+
+        .custom-select::after {
+          border-left: var(--size) solid transparent;
+          border-right: var(--size) solid transparent;
+          border-top: var(--size) solid red;
+          top: 60px;
+        }
+
+        .back {
+          all: initial;
+          display: inline-block;
+          position: absolute;
+          top: 10px;
+          left: 20px;
+          color: #1da1f2;
+          font-size: 28px;
+          text-shadow: 1px 2px 3px #666;
+          cursor: pointer;
+          padding: 0 1rem;
+          z-index: 1;
+        }
+        [hidden] {
+          display: none;
+        }
+      </style>
+
+      <div class="container">
+        <button id="back" type="button" class="back" hidden>←</button>
+        <sig-nal new="back" hydrate> {back: {".hidden": rerender}} </sig-nal>
+        <h1 id="title" class="title">Contact Us</h1>
+        <sig-nal new="title" hydrate>
+          {title: {".textContent": rerender}}
+        </sig-nal>
+        <form
+          id="contact"
+          name="contact-me"
+          action="/my/end/point"
+          method="dialog"
+          autocomplete="on"
+          class="inputs">
+          <label>
+            <span>Your name</span>
+            <input
+              type="text"
+              name="name"
+              placeholder=" John Doe"
+              required
+              autofocus />
+          </label>
+
+          <label>
+            <span>Your email</span>
+            <input
+              type="email"
+              name="email"
+              placeholder=" your@email.com"
+              required />
+          </label>
+
+          <label>
+            <span>Requirements</span>
+            <textarea name="feedback" placeholder=" Tell us more..."></textarea>
+          </label>
+
+          <button type="submit">Let's talk!</button>
+        </form>
+        <sig-nal new="contact" hydrate>
+          {contact: {".hidden": rerender, ".inert": rerender}}
+        </sig-nal>
+        <form
+          id="questionaire"
+          name="questionaire"
+          method="dialog"
+          class="inputs"
+          inert
+          hidden>
+          <span
+            >We'll get back to you soon!<br />Just one more thing before you
+            go&hellip;</span
+          >
+          <label class="custom-select">
+            <span>How did you hear about us?</span>
+            <select name="source" required>
+              <option selected value="">Choose&hellip;</option>
+              <option>Web search</option>
+              <option>Social Media</option>
+              <option>Friends</option>
+            </select>
+          </label>
+
+          <label class="custom-select">
+            <span>Your industry?</span>
+            <select name="industry">
+              <option selected>IT</option>
+              <option>R&amp;D</option>
+              <option>Academia</option>
+              <option>Other</option>
+            </select>
+          </label>
+
+          <label class="custom-select">
+            <span>Your role?</span>
+            <select name="role">
+              <option selected>Engineer</option>
+              <option>Researcher</option>
+              <option>Manager</option>
+              <option>Other</option>
+            </select>
+          </label>
+
+          <button type="submit">Submit</button>
+        </form>
+        <sig-nal new="questionaire" hydrate>
+          {questionaire: {".hidden": rerender, ".inert": rerender}}
+        </sig-nal>
+        <!-- prettier-ignore -->
+        <sig-nal hydrate>
+          {contact: {"@submit": ({signals:{title, contact, questionaire, back}}) => {
+                                title.value = 'Thank You!';
+                                contact.value = true;
+                                questionaire.value = back.value = false;
+                                }
+                    },
+           questionaire: {"@submit": ({signals:{title, contact, questionaire, back}, nodes}) => {
+                                title.value = 'We ❤️ you, 👋!';
+                                questionaire.value = true;
+                                back.value = true;
+                                import('/form.js').then(({submitForms}) => submitForms([nodes.contact, nodes.questionaire]));
+                                }
+                    },
+           back: {"@click": ({signals:{title, contact, questionaire, back}}) => {
+                                title.value = 'Contact Us';
+                                contact.value = false;
+                                questionaire.value = back.value = true;
+                                }
+                 }
+          }
+        </sig-nal>
+      </div>
+    </template>
+  </body>
+</html>
