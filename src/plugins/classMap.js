@@ -1,17 +1,18 @@
 // given sufficient context parameters that allow to get a specific DOM node...
-export default ({ getById, id }) =>
+export default ({ nodes, id }) =>
   // yield a function from a class map (e.g. {even: a_signal_truthy_if_even, odd: a_signal_truthy_if_odd})...
   classMapObject => {
-    // to this function body:
+    // ...to this function body:
+
     // determine the specific DOM node
-    let domNode = getById(id);
+    let domNode = nodes[id];
     // define a helper closure that - given a (possibly computed) signal and a class name - ...
     let mutateClass = (signal, className) =>
       // registers a signal effect...
       signal.effect(
         // which adds the named class to the DOM node if the just-changed signal value is truthy, and removes it otherwise...
         () => domNode.classList[signal.value ? 'add' : 'remove'](className),
-        //
+        // and runs the effect initially as well
         true
       );
     // for all class names in the class map:

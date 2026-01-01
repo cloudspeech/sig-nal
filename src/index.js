@@ -58,7 +58,7 @@ let convert = (stringValue, type) =>
 let context = (self, id, specialAttribute, kind, name, domNode, nodes) => {
   // self is a sig-nal *instance*:
   // extract interesting public methods from it
-  let { getById, ctx } = self;
+  let { ctx } = self;
   // get the map of all signals registered in the present scope
   let signals = signalMap.get(ctx.scope);
   // get the particular signal via the signal instance's name,
@@ -69,7 +69,6 @@ let context = (self, id, specialAttribute, kind, name, domNode, nodes) => {
   // usable as an e(vent) handler.
   return handler => e =>
     handler({
-      getById,
       ctx,
       name,
       signal,
@@ -87,16 +86,13 @@ let context = (self, id, specialAttribute, kind, name, domNode, nodes) => {
  * Apply a value to a DOM node based on the kind of update
  * Kinds: @ = 0 (event listener), . = 1 (property), ? = 2 (boolean attribute), ! = 3 (attribute), : = 4 (method)
  * @param {*} value - The value to apply (can be a function that returns a value)
- * @param {string} name - The property/attribute/method name or dataset property
+ * @param {string} name - The property/attribute/method name
  * @param {HTMLElement} domNode - The DOM node to update
  * @param {number} kind - The kind of DOM update to perform (0-4)
  */
 let domEffect = (value, name, domNode, kind) => {
   // evaluate function values
   if (typeof value === 'function') value = value();
-  // special case: dataset.<name> setter
-  if (/^dataset\.\S+$/.test(name))
-    return (domNode.dataset[name.slice(8)] = value);
   // bail on null values
   if (value === null) return;
   switch (kind) {
@@ -248,18 +244,18 @@ class SigNal extends HTMLElement {
 
   /**
    * Create a renderer for object-based models that updates DOM element properties
-   * @param {Object} context - The context object containing getById, name, and signal
-   * @param {Function} context.getById - Function to get elements by ID
-   * @param {Object} context.ctx - Context object with name property
+   * @param {Object} context - The context object containing nodes, name, and signal
+   * @param {Proxy} context.nodes - Proxy to get elements by ID
+   * @param {Object} context.ctx - C(on)t(e)x(t) object with name property
    * @param {Signal} context.signal - The signal containing the model
    * @returns {Function} A renderer function that updates DOM elements based on the model
    */
   static object =
-    ({ getById, ctx: { name }, signal }) =>
+    ({ nodes, ctx: { name }, signal }) =>
     (model = signal.value) => {
       for (let i = 0, n = model?.length | 0, item, node; i < n; i++) {
         item = model[i];
-        node = getById(name + i);
+        node = nodes[name + i];
         if (item === undefined || !node) continue;
         for (let property in item)
           domEffect(item[property], property, node, /* kind: .property */ 1);
@@ -270,15 +266,15 @@ class SigNal extends HTMLElement {
    * Default DOM renderer: produces a signal.effect callback that updates DOM elements
    * @param {Object} context - The render context
    * @param {Signal} context.signal - The signal to observe
-   * @param {Function} context.getById - Function to get elements by ID
+   * @param {Proxy} context.nodes - Proxy to get elements by ID
    * @param {string} context.id - The element ID
    * @param {string} context.name - The property/attribute/method name
    * @param {number} context.kind - The kind of DOM update (0-4)
    * @returns {Function} A render function that can be used with signal.effect
    */
   static render =
-    ({ signal, getById, id, name, kind }) =>
-    (value = signal.value, domNode = getById(id)) =>
+    ({ signal, nodes, id, name, kind }) =>
+    (value = signal.value, domNode = nodes[id]) =>
       domEffect(value, name, domNode, kind);
 
   /**
@@ -305,7 +301,6 @@ class SigNal extends HTMLElement {
     let root = (this.root = this[this.#getAttribute('for') || 'parentNode']);
     let scope = this.#getAttribute('scope');
     scope = scope ? this.closest(scope) : this.getRootNode();
-    let isShadowDOM = scope instanceof ShadowRoot;
     let isSignal = this.#getAttribute('new');
     let name =
       (this.name = isSignal) ||
@@ -316,17 +311,21 @@ class SigNal extends HTMLElement {
       this.#getAttribute('default') || ''
     ).split('#');
 
-    let { id } = this;
-    // precompute the most appropriate id-getter function
-    let selector = this.#getAttribute('selector'); // typically 'data-id'
-    this.getById = isShadowDOM // inside ShadowDOM, we don't have getByElementId
-      ? id => scope.querySelector('#' + id)
-      : selector // for when we only have component-local 'id' uniqueness
-        ? id => scope.querySelector(`[${selector}=${id}]`)
-        : id => _document.getElementById(id); // fastest
+    // define a generic id-getter function
+    let pureIdGetter =
+      'getElementById' in scope // true iff scope instanceof Document
+        ? id => scope.getElementById(id) // fastest
+        : id => scope.querySelector('#' + id);
+
+    this.getById = id =>
+      /* first character of id looks like a full CSS selector (.#[)? */ id[0] <
+      'a'
+        ? /* yes */ scope.querySelector(id)
+        : /* no */ pureIdGetter(id);
+
     // bundle up attributes of this instance (some derived,
     // some directly cached), to later serve as callback context
-    this.ctx = { root, scope, name, type, id };
+    this.ctx = { root, scope, name, type };
 
     // are we asked to create a signal instance?
     if (isSignal) {

@@ -83,7 +83,7 @@
     </style>
     <div class="wrapper">
       <div class="carousel-component">
-        <div data-id="carousel" class="carousel">
+        <div class="carousel">
           <figure class="carousel-item">
             <img
               src="https://images.unsplash.com/photo-1474181487882-5abf3f0ba6c2?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=960&h=420&q=80"
@@ -109,7 +109,7 @@
             <figcaption>Sunset on the Li River</figcaption>
           </figure>
         </div>
-        <form data-id="controls" class="carousel-controls">
+        <form class="carousel-controls">
           <input
             type="radio"
             name="radios"
@@ -119,11 +119,11 @@
           <input type="radio" name="radios" class="carousel-dot" value="1" />
           <input type="radio" name="radios" class="carousel-dot" value="2" />
           <!-- prettier-ignore -->
-          <sig-nal scope=".carousel-component" selector="data-id" hydrate>
-            {controls: {"@click": ({e, domNode, nodes:{carousel}}) => {
+          <sig-nal scope=".carousel-component" hydrate>
+            {".carousel-controls": {"@click": ({e, domNode, nodes}) => {
                                    e.stopPropagation();
                                    let index = domNode.elements.radios.value | 0;
-                                   carousel.children[index].scrollIntoView();
+                                   nodes[".carousel"].children[index].scrollIntoView();
                                    }
                        }
             }
@@ -131,7 +131,7 @@
         </form>
       </div>
       <div class="carousel-component">
-        <div data-id="carousel" class="carousel">
+        <div class="carousel">
           <figure class="carousel-item">
             <img
               src="https://images.unsplash.com/photo-1474181487882-5abf3f0ba6c2?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=960&h=420&q=80"
@@ -157,7 +157,7 @@
             <figcaption>Sunset on the Li River</figcaption>
           </figure>
         </div>
-        <form data-id="controls" class="carousel-controls">
+        <form class="carousel-controls">
           <input
             type="radio"
             name="radios"
@@ -167,11 +167,11 @@
           <input type="radio" name="radios" class="carousel-dot" value="1" />
           <input type="radio" name="radios" class="carousel-dot" value="2" />
           <!-- prettier-ignore -->
-          <sig-nal scope=".carousel-component" selector="data-id" hydrate>
-            {controls: {"@click": ({e, domNode, nodes:{carousel}}) => {
+          <sig-nal scope=".carousel-component" hydrate>
+            {".carousel-controls": {"@click": ({e, domNode, nodes}) => {
                                    e.stopPropagation();
                                    let index = domNode.elements.radios.value | 0;
-                                   carousel.children[index].scrollIntoView();
+                                   nodes[".carousel"].children[index].scrollIntoView();
                                    }
                        }
             }
