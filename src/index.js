@@ -320,7 +320,7 @@ class SigNal extends HTMLElement {
     // precompute the most appropriate id-getter function
     let selector = this.#getAttribute('selector'); // typically 'data-id'
     this.getById = isShadowDOM // inside ShadowDOM, we don't have getByElementId
-      ? id => root.querySelector('#' + id)
+      ? id => scope.querySelector('#' + id)
       : selector // for when we only have component-local 'id' uniqueness
         ? id => scope.querySelector(`[${selector}=${id}]`)
         : id => _document.getElementById(id); // fastest

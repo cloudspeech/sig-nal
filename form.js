@@ -1,6 +1,5 @@
 export const submitForms = parameters => {
-  const startTime = performance.now(),
-    formData = new FormData(),
+  const formData = new FormData(),
     log = [],
     endpoint = parameters[0].getAttribute('action');
   for (const thisForm of parameters) {

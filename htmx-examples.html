@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en-US">
+  <head>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="description" content="sig-nal htmx examples demo" />
+    <title>sig-nal | htmx examples demo</title>
+    <script type="module" src="./src/plugins/part-ial.js"></script>
+    <script type="module" src="./src/index.js"></script>
+  </head>
+  <body>
+    <style>
+      li {
+        padding: 1em;
+      }
+    </style>
+
+    <h1>htmx examples in &lt;sig-nal&gt;</h1>
+
+    <ol>
+      <li>
+        <a
+          href="https://htmx.org/#:~:text=as%20a%20hypertext-,quick%20start,-%3Cscript%20src"
+          ><h2>quick start</h2></a
+        >
+        <htmx-example-1>
+          <template shadowrootmode="open">
+            <style>
+              button {
+                padding: 1em;
+                letter-spacing: 0.1em;
+                text-transform: uppercase;
+                border: none;
+                background: #3366cc;
+                color: #fff;
+                cursor: pointer;
+                border-radius: 8px;
+              }
+            </style>
+            <part-ial
+              id="partial"
+              options='{"method": "POST"}'
+              mode="replaceWith">
+              <button id="post" data-url="/clicked" style="cursor: pointer">
+                Click Me
+              </button>
+              <!-- prettier-ignore -->
+              <sig-nal new="htmx1" hydrate>
+                { partial: { ".src": rerender},
+                     post: { "@click": ({signal, domNode:{dataset:{url}}}) => (signal.value = url) }
+                }
+              </sig-nal>
+            </part-ial>
+          </template>
+        </htmx-example-1>
+      </li>
+      <li>
+        <a
+          href="https://htmx.org/examples/click-to-edit/#:~:text=%F0%9F%94%8D%EF%B8%8F-,Click%20to%20Edit,-The%20click%20to"
+          ><h2>Click to Edit</h2></a
+        >
+        <htmx-example-2>
+          <template shadowrootmode="open">
+            <style>
+              span,
+              #cancel {
+                display: none;
+              }
+              #edit[type='submit'] + #cancel,
+              #edit[type='submit'] span.submit,
+              #edit[type='button'] span.edit {
+                display: block;
+              }
+
+              input:disabled {
+                background: inherit;
+                border: 0;
+                color: inherit;
+                font: inherit;
+              }
+
+              #edit {
+                background: #3366cc;
+              }
+
+              #edit[type='submit'] {
+                float: left;
+                margin-right: 4px;
+              }
+
+              #cancel {
+                background: #d9534f;
+              }
+
+              button {
+                padding: 1em;
+                letter-spacing: 0.1em;
+                text-transform: uppercase;
+                border: none;
+                color: #fff;
+                cursor: pointer;
+                border-radius: 8px;
+              }
+            </style>
+            <form id="form" method="dialog" action="/contact/1">
+              <div>
+                <label>First Name</label>:
+                <input
+                  id="input0"
+                  type="text"
+                  name="firstName"
+                  value="Joe"
+                  disabled />
+              </div>
+              <div>
+                <label>Last Name</label>:
+                <input
+                  id="input1"
+                  type="text"
+                  name="lastName"
+                  value="Blow"
+                  disabled />
+              </div>
+              <div>
+                <label>Email</label>:
+                <input
+                  id="input2"
+                  type="email"
+                  name="email"
+                  value="joe@blow.com"
+                  disabled />
+              </div>
+              <sig-nal new="input" hydrate>
+                {"": {".firstElementChild": renderWith(object, false)} }
+              </sig-nal>
+              <button id="edit" type="button" class="btn btn-primary">
+                <span class="edit">Click To Edit</span>
+                <span class="submit">Submit</span>
+              </button>
+              <button id="cancel" class="btn btn-primary">Cancel</button>
+              <!-- prettier-ignore -->
+              <sig-nal new="edit" default=".type#edit" hydrate>
+                { edit:   {"@click": async ({ signals:{input, edit}, nodes }) => {
+                                      let editing = edit.value === 'submit';
+                                      let {submitForms} = await import('/form.js');
+                                      if (editing) submitForms([nodes.form]);
+                                      input.value = [0, 1, 2].map(i => ({disabled:editing, _saved: nodes['input'+i].value}));
+                                      edit.value = editing ? 'button' : 'submit';
+                                     },
+                           ".type": rerender
+                          },
+                  cancel: {"@click": ({ signals:{input, edit} }) => {
+                                      let inputs = input.value;
+                                      for(let _input of inputs) {
+                                       _input.value = _input._saved;
+                                       _input.disabled = true;
+                                      }
+                                      input.value = inputs;
+                                      edit.value = 'button';
+                                     }
+                          }
+                }
+              </sig-nal>
+            </form>
+          </template>
+        </htmx-example-2>
+      </li>
+    </ol>
+  </body>
+</html>
