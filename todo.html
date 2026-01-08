@@ -110,7 +110,7 @@
                                         let completed = nodes[`#${id} .complete`].checked;
                                         switch (action) {
                                            case   'remove': footer.value = !(--todocount.value);
-                                                            if (complete) completedcount.value--;
+                                                            if (completed) completedcount.value--;
                                                             li.remove();
                                                             break;
                                            case 'complete': completedcount.value += completed ? 1 : -1;
