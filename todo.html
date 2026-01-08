@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>ToDo App</title>
+    <link rel="stylesheet" href="todo.css" />
+    <script type="module" src="./src/index.js"></script>
+  </head>
+  <body>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font:
+          14px 'Helvetica Neue',
+          Helvetica,
+          Arial,
+          sans-serif;
+        line-height: 1.4em;
+        background: #eaeaea;
+        color: #4d4d4d;
+        width: 550px;
+        margin: 0 auto;
+        -webkit-font-smoothing: antialiased;
+        -moz-font-smoothing: antialiased;
+        -ms-font-smoothing: antialiased;
+        -o-font-smoothing: antialiased;
+      }
+
+      #info {
+        margin: 65px auto 0;
+        color: #a6a6a6;
+        font-size: 12px;
+        text-shadow: 0 1px 0 rgba(255, 255, 255, 0.7);
+        text-align: center;
+      }
+
+      #info a {
+        color: inherit;
+      }
+    </style>
+    <todo-app>
+      <template shadowrootmode="open">
+        <link rel="stylesheet" href="todo.css" />
+        <header id="header">
+          <h1>todos</h1>
+          <form method="dialog" id="addtodo">
+            <input
+              id="new-todo"
+              placeholder="What needs to be done?"
+              autofocus />
+            <!-- prettier-ignore -->
+            <sig-nal new="newtodo" default=".value#new-todo" hydrate hidden>
+              {"new-todo": {".value": rerender,
+                            "@input": ({ e:{target:{value}}, signal }) => (signal.value = value)
+                           }
+              }
+            </sig-nal>
+          </form>
+          <!-- prettier-ignore -->
+          <sig-nal new="todo" hydrate hidden>
+            {"addtodo":   { "@submit":
+                            ({ signals:{todolist, newtodo, todocount, footer}, nodes:{item} }) => {
+                             let id = "todo-item-" + crypto.randomUUID();
+                             let li = html(item, {id, label: sane(newtodo.value)});
+                             todolist.value = ["beforeend", li];
+                             newtodo.value = '';
+                             todocount.value++;
+                             footer.value = false;
+                            }
+                         }
+            }
+          </sig-nal>
+        </header>
+        <section id="main">
+          <input id="toggle-all" type="checkbox" />
+          <label for="toggle-all">Mark all as complete</label>
+          <!-- prettier-ignore -->
+          <sig-nal hydrate hidden>
+            {"toggle-all": {"@click": ({ e:{target:{checked}}, signals:{todocount, completedcount},
+                                         nodes:{"∀#todo-list .complete": completeItems} }) => {
+                                           completeItems.map(checkbox => (checkbox.checked = checked));
+                                           completedcount.value = checked ? todocount.value : 0;
+                                      }
+                           }
+            }
+          </sig-nal>
+          <ul id="todo-list">
+            <template id="item">
+              <li id="${id}">
+                <div class="view">
+                  <input type="checkbox" class="complete" />
+                  <input type="text" class="update" value="${label}" />
+                  <button class="remove"></button>
+                </div>
+              </li>
+            </template>
+            <!-- prettier-ignore -->
+            <sig-nal new="todolist" hydrate hidden>
+              { "todo-list": {":insertAdjacentHTML": rerender,
+                              "@click": ({e, signals:{todocount, footer, completedcount}, nodes}) => {
+                                        let target = e.composedPath()[0];
+                                        let {className: action} = target;
+                                        let li = target.closest('li');
+                                        let {id} = li;
+                                        let completed = nodes[`#${id} .complete`].checked;
+                                        switch (action) {
+                                           case   'remove': footer.value = !(--todocount.value);
+                                                            if (complete) completedcount.value--;
+                                                            li.remove();
+                                                            break;
+                                           case 'complete': completedcount.value += completed ? 1 : -1;
+                                                            break;
+                                        }
+                              }
+                            }
+              }
+            </sig-nal>
+          </ul>
+        </section>
+        <footer id="footer" hidden>
+          <sig-nal new="footer" hydrate hidden>
+            {footer: {".hidden": rerender}}
+          </sig-nal>
+          <span id="todo-count">
+            <strong id="todo-count-value">0</strong>&nbsp;item(s) left
+          </span>
+          <!-- prettier-ignore -->
+          <sig-nal new="todocount" type="number" default=".textContent#todo-count-value" hydrate hidden>
+            {"todo-count-value": {".textContent": rerender} }
+          </sig-nal>
+          <button id="clear-completed">
+            Clear completed
+            <span id="completed-count-value">0</span>
+          </button>
+          <!-- prettier-ignore -->
+          <sig-nal hydrate hidden>
+            {"clear-completed": {"@click": ({signals:{todocount, completedcount, footer},
+                                             nodes:{"∀#todo-list li:has(.complete:checked)": completedItems}}) => {
+                                              completedItems.map(li => li.remove());
+                                              footer.value = !(todocount.value -= completedcount.value);
+                                              completedcount.value = 0;
+                                           }
+                                }
+            }
+          </sig-nal>
+          <!-- prettier-ignore -->
+          <sig-nal new="completedcount" type="number" default=".textContent#completed-count-value" hydrate hidden>
+            {"completed-count-value": {".textContent": rerender} }
+          </sig-nal>
+        </footer>
+      </template>
+    </todo-app>
+    <footer id="info">
+      <p>Click to edit a todo</p>
+      <p>
+        Original Template by
+        <a href="http://github.com/sindresorhus">Sindre Sorhus</a>
+      </p>
+      <p>
+        Originally Created by
+        <a href="http://twitter.com/ffesseler">Florian Fesseler</a>
+      </p>
+      <p>
+        Further Cleanup, edits by
+        <a href="http://github.com/boushley">Aaron Boushley</a>
+      </p>
+      <p>
+        Major Rewrite by
+        <a href="http://github.com/cloudspeech">Markus Walther</a>
+      </p>
+    </footer>
+  </body>
+</html>

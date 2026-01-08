@@ -317,10 +317,14 @@ class SigNal extends HTMLElement {
         ? id => scope.getElementById(id) // fastest
         : id => scope.querySelector('#' + id);
 
+    let IS_CSS_SELECTOR = { '.': 1, '#': 1, '[': 1, ':': 1, '∀': 1 };
+
     this.getById = id =>
-      /* first character of id looks like a full CSS selector (.#[)? */ id[0] <
-      'a'
-        ? /* yes */ scope.querySelector(id)
+      /* first character of id looks like a full CSS selector (.#[) or the \forall quantor? */
+      IS_CSS_SELECTOR[id[0]]
+        ? /* yes */ id[0] === '∀'
+          ? [...scope.querySelectorAll(id.slice(1))]
+          : scope.querySelector(id)
         : /* no */ pureIdGetter(id);
 
     // bundle up attributes of this instance (some derived,
