@@ -7,22 +7,7 @@ let _document = document, // improve minification
   SIGNAL = 'sig-nal',
   REPLACE = { '&': 'amp', '<': 'lt', '"': 'quot', "'": 'apos' };
 
-/**
- * A WeakMap that initializes values on first access
- * @extends WeakMap
- */
-class initWeakMap extends WeakMap {
-  /**
-   * Get or create a value for the given key
-   * @param {object} key - The key to retrieve
-   * @param {object} initializer - The initial value to set if key doesn't exist
-   * @returns {object} The value associated with the key
-   */
-  use = (key, initializer = {}) =>
-    this.get(key) || this.set(key, initializer).get(key);
-}
-
-let signalMap = new initWeakMap();
+let signalMap = {};
 
 let plugins = new Proxy(
   {},
@@ -59,11 +44,9 @@ let context = (self, id, specialAttribute, kind, name, domNode, nodes) => {
   // self is a sig-nal *instance*:
   // extract interesting public methods from it
   let { ctx } = self;
-  // get the map of all signals registered in the present scope
-  let signals = signalMap.get(ctx.scope);
   // get the particular signal via the signal instance's name,
   // cf. <sig-nal new="theName" ...>)
-  let signal = signals && signals[self.name];
+  let signal = signalMap[self.name];
   // return a handler function factory that gets the context info
   // assembled above. A concrete handler function instance is
   // usable as an e(vent) handler.
@@ -72,7 +55,7 @@ let context = (self, id, specialAttribute, kind, name, domNode, nodes) => {
       ctx,
       name,
       signal,
-      signals,
+      signals: signalMap,
       domNode,
       nodes,
       id,
@@ -337,9 +320,9 @@ class SigNal extends HTMLElement {
       let value = defaultAttribute
         ? this.getById(defaultId)[defaultAttribute.slice(1)]
         : this.#getAttribute('value');
-      // then create and enter it into a map under our current scope
+      // then create and enter it into a map
       // with type-appropriate value conversion
-      signalMap.use(scope)[name] = signal(convert(value, type));
+      signalMap[name] = signal(convert(value, type));
     }
 
     // are we asked to automatically enrich the DOM tree under
