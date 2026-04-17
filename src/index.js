@@ -277,6 +277,12 @@ class SigNal extends HTMLElement {
    */
   static rerender = SigNal.renderWith(SigNal.render);
 
+  static update = SigNal.renderWith(
+    ({ signal, nodes, id, name, kind }) =>
+      (value = signal.value, domNode = nodes[id]) =>
+        value && value[id] && domEffect(value[id][name], name, domNode, kind)
+  );
+
   constructor() {
     super();
     // cache lots of attribute values determining the
@@ -361,7 +367,7 @@ class SigNal extends HTMLElement {
         // yes, thus we can use our own text content as inline hydration description -
         // evaluate a carefully constructed function with the text content as parameter!
         new Function(
-          `let{hydrate,render,rerender,renderWith,object,plugin,computed,html,sane}=customElements.get('${SIGNAL}');return hydrate(${textContent})`
+          `let{hydrate,render,rerender,update,renderWith,object,plugin,computed,html,sane}=customElements.get('${SIGNAL}');return hydrate(${textContent})`
         )()(this);
         // send an init(ial) event to our root node - if there is an {": {"@init": initHandler} } in the hydration
         // description, the handler will be invoked synchronously and can perform arbitrary initialization work
